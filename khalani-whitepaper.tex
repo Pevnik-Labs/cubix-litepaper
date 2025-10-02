@@ -1,0 +1,82 @@
+\documentclass[a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[UKenglish]{babel}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{mathpartir}
+\usetikzlibrary{arrows}
+
+\title{Khalani Whitepaper}
+\author{Wojciech Kołowski \and Mateusz Pyzik \and Wojciech Zaborowski}
+
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{example}{Example}
+
+\newcommand{\syn}[1]{\mathsf{#1}}
+\newcommand{\kw}[1]{{\syn{#1}}}
+\newcommand{\when}[1]{{}_{(#1)} \,}
+
+\DeclareMathOperator{\ALT}{|}
+\DeclareMathOperator{\DOT}{.}
+\DeclareMathOperator{\FUN}{\lambda}
+\DeclareMathOperator{\LET}{\kw{let}}
+\DeclareMathOperator{\IN}{\kw{in}}
+\DeclareMathOperator{\CASE}{\kw{case}}
+\DeclareMathOperator{\OF}{\kw{of}}
+\newcommand*{\Fst}[1]{{#1.\kw{fst}}}
+\newcommand*{\Snd}[1]{{#1.\kw{snd}}}
+\newcommand*{\Fun}[2]{{\FUN #1 \DOT #2}}
+\newcommand*{\Let}[3]{{\LET #1 = #2 \IN #3}}
+\newcommand*{\VLet}[3]{
+  \hspace{-0.5em}
+  \begin{array}[t]{l}
+    \LET #1 = \\
+    \quad #2 \\
+    \IN #3 \\
+  \end{array}
+  \hspace{-0.5em}}
+\newcommand*{\Case}[2]{{\CASE #1 \OF #2}}
+\newcommand*{\VHandle}[3]{
+  \hspace{-0.5em}
+  \begin{array}[t]{l}
+    \CASE #1 \OF
+    #2
+  \end{array}
+  \hspace{-0.5em}}
+\DeclarePairedDelimiter{\len}{|}{|}
+\DeclarePairedDelimiter{\denote}{\llbracket}{\rrbracket}
+\DeclarePairedDelimiter{\decompile}{\llparenthesis}{\rrparenthesis}
+\newcommand*{\grdef}{\hspace{-0.75em}::=}
+\newcommand*{\eps}{\varepsilon}
+\newcommand*{\id}[1]{\mathrm{id}_{#1}}
+
+\begin{document}
+
+\maketitle
+
+\section{Axi language}
+
+\begin{example}[Serialization]
+  Serialization interface. % TODO
+\end{example}
+
+\begin{figure}[tp!]
+  \begin{mathpar}
+    \inferrule*[right=fun]
+    {\Gamma, x \vdash e \\ x \notin \Gamma}
+    {\Gamma \vdash \Fun{x}{e}}
+
+  \end{mathpar}
+  \caption{Something something.}
+  \label{fig:wf}
+\end{figure}
+
+\end{document}
