@@ -68,23 +68,26 @@
 
 \section{The Axi programming language}
 
-Axi (pronounced ``Axee'') is the smart contract language of Cubix. It is a purely functional programming language with a strong, static, linear type system and support for formal reasoning about programs in classical higher-order logic. Among mainstream programming languages, it is most similar to Haskell and, to a lesser degree, OCaml. It was also heavily inspired by proof assistants based on Type Theory, like Coq, Lean and Agda.
+Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a purely functional programming language with a strong, static, linear type system and support for formal reasoning about programs in classical higher-order logic. Among mainstream programming languages, it is most similar to Haskell and, to a lesser degree, OCaml. It was also heavily inspired by proof assistants based on Type Theory, like Coq, Lean and Agda.
 
 \subsection{Philosophy}
 
 Axi features a unique architecture that strictly separates it into two layers: the programming layer and the logical layer.
 
-\textbf{The Programming Layer} of Axi is a purely functional language based on System F with algebraic data types and a resource-aware type system. It aims to make programming pleasant and comprehending smart contract code easy, while providing powerful guaranties to all on-chain code:
+\textbf{The Programming Layer} of Axi is a purely functional language based on System F with algebraic data types and a resource-aware type system. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guaranties to all on-chain code:
 
 \begin{itemize}
-  \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash (unless they run out of gas) perform silly operations like adding a number and a string or result in any other runtime type error.
+  \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash (unless they run out of gas), perform silly operations like adding a number and a string or result in any other runtime type error.
   \item \textbf{Memory safety}. Well-typed programs can't result in memory errors, like writing to a random memory location, nor can they have memory leaks.
   \item \textbf{Resource safety}. Well-typed programs can't access resources they don't have permission to, can't delete tokens that are not supposed to be deletable and can't create money out of thin air.
 \end{itemize}
 
-\textbf{The Logical Layer} of Axi is a language for reasoning about Axi programs using classical higher-order logic. It gives programmers the ability to express smart contract specifications much more powerful than what the type system alone guarantees. These specifications can then be either tested with random inputs before deployment, checked during runtime, or proved once and for all using logic. The use of the logical layer is entirely optional, i.e. programmers are never forced to engage with any part of it.
+\textbf{The Logical Layer} of Axi is a language for reasoning about Axi programs using classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their smart contracts. These specifications can then be either tested with random inputs before deployment, checked during runtime, or proved once and for all as theorems, thus providing guaranties much more powerful than those of the type system. The use of the logical layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although they will be encouraged to do so by competition from other programmers.
 
-\textbf{One-way Interaction}. Logic can reason about programs, but programs cannot manipulate logical entities at runtime. This keeps the language reasonably simple while still being very expressive.
+\textbf{Strict separation}. Logic can reason about programs, but programs cannot manipulate logical entities, like theorems or proofs, at runtime. This one-way interaction keeps the language relatively simple, while still allowing it to express almost all functional programming idioms and all possible mathematical properties and their proofs.
+
+\textbf{Guaranties all the way down.} We intend not only for Axi to provide strong guaranties about its smart contracts, but also for us to provide strong guaranties about Axi itself. We plan to use the Coq proof assistant to formally verify significant portions of Axi's metatheory, including the aforementioned properties of type and resource safety, as well as the consistency of Axi's logic. We are also considering formal verification of the reference implementation of Axi. The goal of these efforts is to ensure that the guaranties that Axi provides are trustworthy and will stay so forever, as long as the consensus protocol is followed.
+
 
 \subsection{Features}
 
@@ -93,33 +96,28 @@ Axi features a unique architecture that strictly separates it into two layers: t
 Axi is, at its core, a purely functional programming language descending from the ML family. Thus, it supports all the usual features of such languages:
 
 \begin{itemize}
+  \item \textbf{Purity amd immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. This makes code comprehensible and very easy to reason about, thus rendering Axi smart contracts transparent and auditable.
   \item \textbf{First-class, higher-order and anonymous functions}. Functions are first class citizens. They can be passed as arguments to other functions, returned from other functions as results and created on the fly. Axi encourages a programming style in which data is processed by pipelines built from basic building blocks like mapping, reducing, filtering and so on.
-  \item \textbf{Algebraic data types and exhaustive pattern-matching}. Instead of clunky boolean flags and cascades of ifs, Axi makes it easy to model the problem domain with disjoint unions and define functions on them by pattern matching and explicitly and handling all possible cases.
-  \item \textbf{Purity amd immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. This makes smart contract code written in Axi very easy to comprehend, saving 
+  \item \textbf{Algebraic data types and exhaustive pattern-matching}. Instead of clunky boolean flags and cascades of ifs, Axi makes it easy to model the problem domain with disjoint unions and define functions on them by pattern matching and explicitly handling all possible cases.
+  \item \textbf{Strong static type system}. Axi's type system makes it easy to work with high-level abstractions, like merkle trees or state machines, instead of low-level primitives, like integers or byte arrays. It is lightweight, not placing too many demands on the programmer, but still catches the most egregious errors -- it can easily protect programmers from confusing such objects as an integer, a string, an address, a transaction hash, a token amount and a cryptographic secret, with each other.
+  \item \textbf{Polymorphism (parametric, impredicative)}. TODO
 \end{itemize}
 
-Strong static type system.
-
-
-Polymorphism (parametric, impredicative).
-
-Inductive data types (like Bool, List or Tree), with functions defined by pattern matching.
+But this is only the beginning. Axi is a resource-aware language, with its type system based on linear logic and Quantiative Type Theory. Thanks to these features, it can track correct resource management at the type level. TODO
 
 \subsubsection{Logical Layer}
 
-Propositional logic with standard connectives and constants (-->, /\, \/, <-->, ~, True, False).
-
-Quantification (forall, exists) over programs and types from the programming layer, as well as over logical entities like propositions, predicates and relations.
-
-Equality (===) and reasoning by rewriting.
-
-Classical logic via reasoning by-contradiction and convenient syntax for reasoning requiring the Axiom of Choice.
-
-Chaining, a unique way of representing reasoning based on long chains of equations, implications and biconditionals, which makes many proofs more readable.
+\begin{itemize}
+  \item \textbf{Propositional logic}. Standard connectives and constants (-->, $\land$, $\lor$, $\iff$, $\sim$, $\top$, $\bot$).
+  \item \textbf{Quantifiers}. Quantification (forall, exists) over programs and types from the programming layer, as well as over logical entities like propositions, predicates and relations.
+  \item \textbf{Equality}. (===) and reasoning by rewriting.
+  \item \textbf{Classical logic} via reasoning by-contradiction and convenient syntax for reasoning requiring the Axiom of Choice.
+  \item \textbf{Chaining}, a unique way of representing reasoning based on long chains of equations, implications and biconditionals, which makes many proofs more readable.
+\end{itemize}
 
 \subsection{Rich interfaces}
 
-Haskell-like type classes.
+Haskell-like type classes, but they can contain specifications. TODO
 
 \subsection{Examples}
 
