@@ -96,14 +96,16 @@ Axi features a unique architecture that strictly separates it into two layers: t
 Axi is, at its core, a purely functional programming language descending from the ML family. Thus, it supports all the usual features of such languages:
 
 \begin{itemize}
-  \item \textbf{Purity amd immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. This makes code comprehensible and very easy to reason about, thus rendering Axi smart contracts transparent and auditable.
+  \item \textbf{Purity amd immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. This facilitates reasoning about and comprehending code, thus rendering Axi smart contracts transparent and auditable.
   \item \textbf{First-class, higher-order and anonymous functions}. Functions are first class citizens. They can be passed as arguments to other functions, returned from other functions as results and created on the fly. Axi encourages a programming style in which data is processed by pipelines built from basic building blocks like mapping, reducing, filtering and so on.
   \item \textbf{Algebraic data types and exhaustive pattern-matching}. Instead of clunky boolean flags and cascades of ifs, Axi makes it easy to model the problem domain with disjoint unions and define functions on them by pattern matching and explicitly handling all possible cases.
   \item \textbf{Strong static type system}. Axi's type system makes it easy to work with high-level abstractions, like merkle trees or state machines, instead of low-level primitives, like integers or byte arrays. It is lightweight, not placing too many demands on the programmer, but still catches the most egregious errors -- it can easily protect programmers from confusing such objects as an integer, a string, an address, a transaction hash, a token amount and a cryptographic secret, with each other.
-  \item \textbf{Polymorphism (parametric, impredicative)}. TODO
+  \item \textbf{Polymorphism and interfaces}. Axi's type system features polymorphism (also known as ``generics'') as well as interfaces inspired by Haskell's type classes, making it easy to implement data structures and functions that work for all types that support a certain behaviour, like a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
 \end{itemize}
 
-But this is only the beginning. Axi is a resource-aware language, with its type system based on linear logic and Quantiative Type Theory. Thanks to these features, it can track correct resource management at the type level. TODO
+However, these are only the more or less standard features that plenty of functional programming languages have. The killer feature, as far as the programming layer is concerned, is tracking correct resource usage at the type level. This aspect of Axi's type system was inspired by linear logic and its cousin, Quantitative Type Theory, and improves upon Move, the programming language of the Sui and Aptos blockchains.
+
+In Axi, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with a type error being produced if it was used too much or not enough. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe give the NFT to the transaction's originator, maybe trade it for something else (and handle that something else properly according to its quantity), or maybe send it to somebody as a gift. What could not be done in such a situation is forgetting the NFT and doing nothing with it, effectively making it ``lost'' in the guts of the chain.
 
 \subsubsection{Logical Layer}
 
