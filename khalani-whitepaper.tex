@@ -13,6 +13,7 @@
 
 \title{Khalani Whitepaper}
 \author{Wojciech Klaudiusz Zaborowski \\ Wojciech Kołowski \\ Mateusz Pyzik}
+\date{}
 
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
@@ -72,24 +73,26 @@ Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a pur
 
 \subsection{Philosophy}
 
-Axi features a unique architecture that strictly separates it into two layers: the programming layer and the logical layer.
+Axi features a unique architecture in that it is split into two strictly separate layers: the programming layer and the logical layer.
 
-\textbf{The Programming Layer} of Axi is a purely functional language based on System F with algebraic data types and a resource-aware type system. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guaranties to all on-chain code:
+\textbf{The Programming Layer} of Axi is a purely functional language based on System F with algebraic data types and a resource-aware type system. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
 
 \begin{itemize}
-  \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash (unless they run out of gas), perform silly operations like adding a number and a string or result in any other runtime type error.
+  \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash (unless they run out of gas), can't perform silly operations like adding a number and a string and can't result in any other runtime type error.
   \item \textbf{Memory safety}. Well-typed programs can't result in memory errors, like writing to a random memory location, nor can they have memory leaks.
   \item \textbf{Resource safety}. Well-typed programs can't access resources they don't have permission to, can't delete tokens that are not supposed to be deletable and can't create money out of thin air.
 \end{itemize}
 
-\textbf{The Logical Layer} of Axi is a language for reasoning about Axi programs using classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their smart contracts. These specifications can then be either tested with random inputs before deployment, checked during runtime, or proved once and for all as theorems, thus providing guaranties much more powerful than those of the type system. The use of the logical layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although they will be encouraged to do so by competition from other programmers.
+\textbf{The Logical Layer} of Axi is a language for reasoning about Axi programs using classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their smart contracts. These specifications can then be either tested with random inputs before deployment, checked during runtime, or proved once and for all as theorems, thus providing guarantees much more powerful than those of the type system alone. The use of the logical layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although they will be encouraged to do so by competition from other programmers' code, which might become more popular if it provides stronger guarantees.
 
 \textbf{Strict separation}. Logic can reason about programs, but programs cannot manipulate logical entities, like theorems or proofs, at runtime. This one-way interaction keeps the language relatively simple, while still allowing it to express almost all functional programming idioms and all possible mathematical properties and their proofs.
 
-\textbf{Guaranties all the way down.} We intend not only for Axi to provide strong guaranties about its smart contracts, but also for us to provide strong guaranties about Axi itself. We plan to use the Coq proof assistant to formally verify significant portions of Axi's metatheory, including the aforementioned properties of type and resource safety, as well as the consistency of Axi's logic. We are also considering formal verification of the reference implementation of Axi. The goal of these efforts is to ensure that the guaranties that Axi provides are trustworthy and will stay so forever, as long as the consensus protocol is followed.
+\textbf{Guarantees all the way down.} We intend not only for Axi to provide strong guarantees about its smart contracts, but also for us to provide strong guarantees about Axi itself. We plan to use the Coq proof assistant to formally verify significant portions of Axi's metatheory, including the aforementioned properties of type and resource safety, as well as the consistency of Axi's logic. We are also considering formal verification of the reference implementation of Axi. The goal of these efforts is to ensure that the guarantees that Axi provides are trustworthy and will stay so forever, as long as the consensus protocol is followed.
 
 
 \subsection{Features}
+
+In this section, we will take a closer look at Axi's language features.
 
 \subsubsection{Programming Layer}
 
@@ -99,13 +102,13 @@ Axi is, at its core, a purely functional programming language descending from th
   \item \textbf{Purity amd immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. This facilitates reasoning about and comprehending code, thus rendering Axi smart contracts transparent and auditable.
   \item \textbf{First-class, higher-order and anonymous functions}. Functions are first class citizens. They can be passed as arguments to other functions, returned from other functions as results and created on the fly. Axi encourages a programming style in which data is processed by pipelines built from basic building blocks like mapping, reducing, filtering and so on.
   \item \textbf{Algebraic data types and exhaustive pattern-matching}. Instead of clunky boolean flags and cascades of ifs, Axi makes it easy to model the problem domain with disjoint unions and define functions on them by pattern matching and explicitly handling all possible cases.
-  \item \textbf{Strong static type system}. Axi's type system makes it easy to work with high-level abstractions, like merkle trees or state machines, instead of low-level primitives, like integers or byte arrays. It is lightweight, not placing too many demands on the programmer, but still catches the most egregious errors -- it can easily protect programmers from confusing such objects as an integer, a string, an address, a transaction hash, a token amount and a cryptographic secret, with each other.
-  \item \textbf{Polymorphism and interfaces}. Axi's type system features polymorphism (also known as ``generics'') as well as interfaces inspired by Haskell's type classes, making it easy to implement data structures and functions that work for all types that support a certain behaviour, like a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
+  \item \textbf{Strong static type system}. Axi's type system makes it easy to work with high-level abstractions, like merkle trees or state machines, instead of low-level primitives, like integers or byte arrays. It is lightweight, not placing too many demands on the programmer, but still catches the most egregious errors -- it can easily protect programmers from confusing with each other such objects as an integer, a string, an address, a transaction hash, a token amount and a cryptographic secret.
+  \item \textbf{Polymorphism and interfaces}. Axi's type system features polymorphism (also known as ``generics'') as well as interfaces inspired by Haskell's type classes. These features make it easy to implement data structures and functions that work for all types that support a certain behaviour, for example a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
 \end{itemize}
 
 However, these are only the more or less standard features that plenty of functional programming languages have. The killer feature, as far as the programming layer is concerned, is tracking correct resource usage at the type level. This aspect of Axi's type system was inspired by linear logic and its cousin, Quantitative Type Theory, and improves upon Move, the programming language of the Sui and Aptos blockchains.
 
-In Axi, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with a type error being produced if it was used too much or not enough. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe give the NFT to the transaction's originator, maybe trade it for something else (and handle that something else properly according to its quantity), or maybe send it to somebody as a gift. What could not be done in such a situation is forgetting the NFT and doing nothing with it, effectively making it ``lost'' in the guts of the chain.
+In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with a type error being produced if it was used too much or not enough. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe give the NFT to the transaction's originator, maybe trade it for something else (and handle that something else properly according to its quantity), or maybe send it to somebody as a gift. What could not be done in such a situation is forgetting the NFT and doing nothing with it, effectively making it ``lost'' in the guts of the chain.
 
 \subsubsection{Logical Layer}
 
@@ -120,6 +123,16 @@ In Axi, every variable is assigned its \textit{quantity}, which can be either: z
 \subsection{Rich interfaces}
 
 Haskell-like type classes, but they can contain specifications. TODO
+
+\subsection{Transaction execution}
+
+Combining Khalani's ledger model with Axi's elegant functional programming and powerful resource usage tracking at the type level results in a pleasant programming model characterized by a very high standard of safety and correctness. The typical program executed as part of a transaction will interact with the blockchain in three steps:
+
+\begin{itemize}
+  \item \textbf{Withdraw}. First, resources are ``withdrawn'' from the blockchain state into the program. The ledger's ownership model ensures the safety of this step, for example by making sure that the program cannot withdraw resources that don't belong to the transaction's originator.
+  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system keeps an eye on them, silly operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on. The only bad thing that can happen during this step is that the resources get unwisely exchanged.
+  \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the blockchain. Again, the safety of this step is ensured by the ledger's ownership model.
+\end{itemize}
 
 \subsection{Examples}
 
