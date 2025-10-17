@@ -9,6 +9,9 @@
 \usepackage{mathtools}
 \usepackage{tikz}
 \usepackage{mathpartir}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{sourcecodepro}
 \usetikzlibrary{arrows}
 
 \title{Khalani Whitepaper}
@@ -73,7 +76,7 @@ Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a pur
 
 \subsection{Philosophy}
 
-Axi features a unique architecture in that it is split into two strictly separate layers: the programming layer and the logical layer.
+Axi features a unique architecture in that it is split into two strictly separate layers: the programming layer and the logic layer.
 
 \textbf{The Programming Layer} of Axi is a purely functional language based on System F with algebraic data types and a resource-aware type system. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
 
@@ -83,7 +86,7 @@ Axi features a unique architecture in that it is split into two strictly separat
   \item \textbf{Resource safety}. Well-typed programs can't access resources they don't have permission to, can't delete tokens that are not supposed to be deletable and can't create money out of thin air.
 \end{itemize}
 
-\textbf{The Logical Layer} of Axi is a language for reasoning about Axi programs using classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their smart contracts. These specifications can then be either tested with random inputs before deployment, checked during runtime, or proved once and for all as theorems, thus providing guarantees much more powerful than those of the type system alone. The use of the logical layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although they will be encouraged to do so by competition from other programmers' code, which might become more popular if it provides stronger guarantees.
+\textbf{The Logic Layer} of Axi is a language for reasoning about Axi programs using classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their smart contracts. These specifications can then be either tested with random inputs before deployment, checked during runtime, or proved once and for all as theorems, thus providing guarantees much more powerful than those of the type system alone. The use of the logic layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although they will be encouraged to do so by competition from other programmers' code, which might become more popular if it provides stronger guarantees.
 
 \textbf{Strict separation}. Logic can reason about programs, but programs cannot manipulate logical entities, like theorems or proofs, at runtime. This one-way interaction keeps the language relatively simple, while still allowing it to express almost all functional programming idioms and all possible mathematical properties and their proofs.
 
@@ -110,34 +113,77 @@ However, these are only the more or less standard features that plenty of functi
 
 In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with a type error being produced if it was used too much or not enough. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe give the NFT to the transaction's originator, maybe trade it for something else (and handle that something else properly according to its quantity), or maybe send it to somebody as a gift. What could not be done in such a situation is forgetting the NFT and doing nothing with it, effectively making it ``lost'' in the guts of the chain.
 
-\subsubsection{Logical Layer}
+\subsubsection{Logic Layer}
+
+Axi's logic layer consists of (typed) classical higher-order logic with equality whose domains of discourse are the types from the programming layer. This means the logic consists of:
 
 \begin{itemize}
-  \item \textbf{Propositional logic}. Standard connectives and constants (-->, $\land$, $\lor$, $\iff$, $\sim$, $\top$, $\bot$).
-  \item \textbf{Quantifiers}. Quantification (forall, exists) over programs and types from the programming layer, as well as over logical entities like propositions, predicates and relations.
-  \item \textbf{Equality}. (===) and reasoning by rewriting.
-  \item \textbf{Classical logic} via reasoning by-contradiction and convenient syntax for reasoning requiring the Axiom of Choice.
-  \item \textbf{Chaining}, a unique way of representing reasoning based on long chains of equations, implications and biconditionals, which makes many proofs more readable.
+  \item \textbf{Propositional connectives and constants}. Standard propositional connectives ($\implies$, $\land$, $\lor$, $\iff$, $\sim$) and constants ($\top$, $\bot$) can be used to build up complex propositions from simpler ones.
+  \item \textbf{First-order quantification}. Axi supports quantification, both universal (for all $x$, ...) and existential (there exists an $x$ such that...). We can quantify over terms (forall all $x$ of type $A$, ...) as well as over types themselves (forall all types $A$, ...). This means we can freely talk about data, resources and programs alike, as well as about data types, resource types and program types.
+  \item \textbf{Higher-order quantification}. We can also quantify over logical entities like propositions, predicates and relations. This is precisely what it means for a logic to be higher-order.
+  \item \textbf{Equality}. The built-in equality relation ($=$) makes it possible to precisely reason about programs' input-output behaviour.
+  \item \textbf{Classical principles}. Unlike many other program logics, we assume the Law of Excluded Middle as well as the Axiom of Choice, which makes the logic classical and thus intimately familiar to all mathematicians.
 \end{itemize}
 
-\subsection{Rich interfaces}
+Proofs are carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic - instead of being primitives, negation is a shorthand for an implication into falsehood, whereas biconditional is a shorthand for a conjunction of two implications.
 
-Haskell-like type classes, but they can contain specifications. TODO
+One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proofterm style}, similar to the style of Agda and Idris (as well as Coq's Gallina terms and Lean's terms), or in a \textit{tactic style}, similar to the way proofs usually look in Coq or Lean. This feature makes it easy to accomodate people coming from all these languages. How this works is pretty simple: Axi's proofs are actually proof terms (like Agda/Idris), but thanks to a very clever parser they can be formatted either like terms or like tactics.
 
-\subsection{Transaction execution}
+Equality is handled as in Martin-L\"of Type Theory - proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, we provide a very convenient feature called \textit{chaining}, which allows to perform reasoning with long chains of equations more like it's usually done on the blackboard. As this feature is very convenient, it also supports implications, biconditionals and other transitive relations.
+
+Classical logic is realized using two primitives. Proof by contradiction allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$. The Axiom of Choice, realized in a way inspired by the Lean proof assistant, works in a way that might seem strange to mathematicians at a first glance, but makes it very convenient to use in practice: while writing programs for the purpose of using it in a proof, we are allowed make use of a new primitive, \texttt{choose}, which turns a proof of $\exists x : A, P\ x$ into an element of type $A$. These programs that make use of the Axiom of Choice cannot be run, but since they sole purpose is to be used as part of a proof, this does not pose any problems.
+
+Last but not least, the killer feature of the logic layer are \textit{rich interfaces}. They are very much like the interfaces available in the programming layer, but in addition to function declarations they may also contain logical specifications. When implementing such an interface, besides defining the functions, we must also prove the specifications. TODO
+
+\subsection{Interacting with the blockchain}
+
+\subsubsection{Primitives}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  numbers=left,
+  numbersep=5pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\lstinputlisting{Primitives.axi}
+
+\subsubsection{Transaction execution}
 
 Combining Khalani's ledger model with Axi's elegant functional programming and powerful resource usage tracking at the type level results in a pleasant programming model characterized by a very high standard of safety and correctness. The typical program executed as part of a transaction will interact with the blockchain in three steps:
 
 \begin{itemize}
   \item \textbf{Withdraw}. First, resources are ``withdrawn'' from the blockchain state into the program. The ledger's ownership model ensures the safety of this step, for example by making sure that the program cannot withdraw resources that don't belong to the transaction's originator.
-  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system keeps an eye on them, silly operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on. The only bad thing that can happen during this step is that the resources get unwisely exchanged.
+  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system keeps an eye on them, silly operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on.
   \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the blockchain. Again, the safety of this step is ensured by the ledger's ownership model.
 \end{itemize}
 
 \subsection{Examples}
 
-\begin{example}[Serialization]
-  Serialization interface. % TODO
+\begin{example}[Donut Shop]
+  \href{https://www.notion.so/Intent-examples-287aa41e1cf68031bef1fe23a3db0d8a?source=copy_link#28faa41e1cf6807e88b3cbf5f05cccbd}{Click to see the donut shop example on Notion}
+
+\lstinputlisting{DonutShop.axi}
+
 \end{example}
 
 %\begin{figure}[tp!]
@@ -152,6 +198,8 @@ Combining Khalani's ledger model with Axi's elegant functional programming and p
 %\end{figure}
 
 \subsection{Formal description}
+
+\href{https://github.com/tvl-labs/T-Axi/blob/master/Theory/Theory.pdf}{Click to see slides with the theory}
 
 \section{Outro}
 
