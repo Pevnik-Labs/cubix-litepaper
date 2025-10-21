@@ -1,0 +1,1 @@
+TODO (perhaps type errors when trying to copy or drop coins)

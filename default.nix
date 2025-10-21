@@ -3,7 +3,7 @@
 with pkgs;
 
 stdenv.mkDerivation {
-  name = "T-Axi";
+  name = "Khalani litepaper";
   buildInputs = [ (texlive.combine {
                     inherit (texlive)
                       scheme-small
@@ -14,6 +14,7 @@ stdenv.mkDerivation {
                       mathpartir
                       sourcecodepro
                       stmaryrd
+                      appendix
 
                       # build tools
                       latexmk
@@ -24,7 +25,7 @@ stdenv.mkDerivation {
   src = ./.;
 
   meta = with lib; {
-    description = "Prototype of type theoretical Axi - docs and implementation";
+    description = "Khalani litepaper";
     license = licenses.isc;
     platforms = platforms.linux;
   };
