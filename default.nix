@@ -8,10 +8,12 @@ stdenv.mkDerivation {
                     inherit (texlive)
                       scheme-small
 
-                      # Add other LaTeX libraries (packages) here as needed, e.g:
-                      # xparse
-                      stmaryrd
+                      # Add other LaTeX libraries (packages) here as needed:
+                      collection-fontsrecommended
+                      ly1
                       mathpartir
+                      sourcecodepro
+                      stmaryrd
 
                       # build tools
                       latexmk

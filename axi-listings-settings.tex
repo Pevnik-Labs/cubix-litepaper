@@ -1,0 +1,55 @@
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinelanguage{Axi}{
+  morekeywords={primitive,forall,interface,instance,let,in,if,then,else,do,record,type,where,match,with},
+  sensitive=true,
+  morecomment=[l]{//},     % line comment
+  morecomment=[s]{/*}{*/}, % block comment
+  morestring=[b]",          % strings in double quotes
+  literate={:}{{{\color{codegray}:}}}{1}
+           {=}{{{\color{codegray}=}}}{1}
+           {=>}{{{\color{codegray}=>}}}{1}
+           {|}{{{\color{codegray}|}}}{1}
+           {,}{{{\color{codegray},}}}{1}
+           {.}{{{\color{codegray}.}}}{1}
+           {\{\}}{{{\color{codegray}\{\}}}}{1}
+           {()}{{{\color{codegray}()}}}{1}
+           {0}{{{\color{codegray}0}}}{1}
+           {1}{{{\color{codegray}1}}}{1}
+           {2}{{{\color{codegray}2}}}{1}
+           {3}{{{\color{codegray}3}}}{1}
+           {4}{{{\color{codegray}4}}}{1}
+           {5}{{{\color{codegray}5}}}{1}
+           {6}{{{\color{codegray}6}}}{1}
+           {7}{{{\color{codegray}7}}}{1}
+           {8}{{{\color{codegray}8}}}{1}
+           {9}{{{\color{codegray}9}}}{1}
+           {->}{{{\color{teal}->}}}{1}
+           {+}{{{\color{teal}+}}}{1}
+           {*}{{{\color{teal}*}}}{1}
+           {==}{{{\color{teal}==}}}{1}
+}
+
+\lstdefinestyle{Axi-style}{
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize\upshape,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  numbers=left,
+  numbersep=5pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+
+\lstset{language=Axi,style=Axi-style}

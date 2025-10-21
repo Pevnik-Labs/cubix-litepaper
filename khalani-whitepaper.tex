@@ -1,4 +1,5 @@
 \documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[UKenglish]{babel}
 \usepackage{amsmath}
@@ -11,8 +12,10 @@
 \usepackage{mathpartir}
 \usepackage{hyperref}
 \usepackage{listings}
-\usepackage{sourcecodepro}
+\usepackage[t1]{sourcecodepro}
 \usetikzlibrary{arrows}
+
+\input{axi-listings-settings}
 
 \title{Khalani Whitepaper}
 \author{Wojciech Klaudiusz Zaborowski \\ Wojciech Kołowski \\ Mateusz Pyzik}
@@ -129,7 +132,7 @@ Proofs are carried out in a proof language based on the Curry-Howard corresponde
 
 One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proofterm style}, similar to the style of Agda and Idris (as well as Coq's Gallina terms and Lean's terms), or in a \textit{tactic style}, similar to the way proofs usually look in Coq or Lean. This feature makes it easy to accomodate people coming from all these languages. How this works is pretty simple: Axi's proofs are actually proof terms (like Agda/Idris), but thanks to a very clever parser they can be formatted either like terms or like tactics.
 
-Equality is handled as in Martin-L\"of Type Theory - proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, we provide a very convenient feature called \textit{chaining}, which allows to perform reasoning with long chains of equations more like it's usually done on the blackboard. As this feature is very convenient, it also supports implications, biconditionals and other transitive relations.
+Equality is handled as in Martin-Löf Type Theory - proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, we provide a very convenient feature called \textit{chaining}, which allows to perform reasoning with long chains of equations more like it's usually done on the blackboard. As this feature is very convenient, it also supports implications, biconditionals and other transitive relations.
 
 Classical logic is realized using two primitives. Proof by contradiction allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$. The Axiom of Choice, realized in a way inspired by the Lean proof assistant, works in a way that might seem strange to mathematicians at a first glance, but makes it very convenient to use in practice: while writing programs for the purpose of using it in a proof, we are allowed make use of a new primitive, \texttt{choose}, which turns a proof of $\exists x : A, P\ x$ into an element of type $A$. These programs that make use of the Axiom of Choice cannot be run, but since they sole purpose is to be used as part of a proof, this does not pose any problems.
 
@@ -138,32 +141,6 @@ Last but not least, the killer feature of the logic layer are \textit{rich inter
 \subsection{Interacting with the blockchain}
 
 \subsubsection{Primitives}
-
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-\lstdefinestyle{mystyle}{
-  backgroundcolor=\color{backcolour},
-  commentstyle=\color{codegreen},
-  keywordstyle=\color{magenta},
-  numberstyle=\tiny\color{codegray},
-  stringstyle=\color{codepurple},
-  basicstyle=\ttfamily\footnotesize,
-  breakatwhitespace=false,
-  breaklines=true,
-  captionpos=b,
-  keepspaces=true,
-  numbers=left,
-  numbersep=5pt,
-  showspaces=false,
-  showstringspaces=false,
-  showtabs=false,
-  tabsize=2
-}
-
-\lstset{style=mystyle}
 
 \lstinputlisting{Primitives.axi}
 

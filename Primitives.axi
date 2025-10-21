@@ -1,19 +1,46 @@
 primitive
   // provides access to ledger and transaction metadata
   Ledger : Type1
-  // each cell and user has a unique address
+  // a unique address of a cell or an account
   Address : Type
   // an address that signed the currently executed transaction
   whoami : Ledger -> Address * Ledger
-  // `transfer` creates a new owned cell, owned by a specified address
+  // create a new cell owned by a specified address
   transfer : forall (A : Type1), Address -> A -> Ledger -> Address * Ledger
-  // `receive` destructs an existing cell owned by transaction signer
-  receive : forall @(A : Type1), Ledger -> Maybe A * Ledger
-  // `share` creates a new mutable, shared cell, accessible by everyone
+  // destroy an existing cell owned by transaction signer
+  receive : forall @(A : Type1), Ledger -> Option A * Ledger
+  // create a new mutable shared cell, accessible by everyone
   share : forall (A : Type1), A -> Ledger -> Address * Ledger
-  // `update` accesses an owned or shared cell but requires a new version back
-  update : forall @(A : Type1), Address -> Ledger -> Maybe (A * (A -> Unit)) * Ledger
-  // `freeze` creates a new immutable cell, accessible by everyone
+  // get an owned or a shared cell and set its new version
+  update : forall @(A : Type1),
+    Address -> Ledger -> Option (A * (A -> Unit)) * Ledger
+  // create a new immutable shared cell, accessible by everyone
   freeze : forall (A : Type), A -> Ledger -> Address * Ledger
-  // `peek` provides contents of an immutable object
-  peek : forall @(A : Type), Address -> Ledger -> Maybe A * Ledger
+  // read contents of an immutable cell
+  peek : forall @(A : Type), Address -> Ledger -> Option A * Ledger
+
+interface Coin (A : Type1) where
+  CoinAmount : Type
+  coinAmount : A -> CoinAmount * A
+  coinZero : A
+  coinMerge : A -> A -> A
+  coinSplit : CoinAmount -> A -> Option A * A
+
+record type KhalaniCoin : Type1 where
+  amount : Nat
+
+instance Coin KhalaniCoin where
+  CoinAmount = Nat
+  coinAmount (coin : KhalaniCoin) : Nat * KhalaniCoin =
+    (coin.amount, coin)
+  coinZero = record where amount = 0
+  coinMerge (coin1 coin2 : KhalaniCoin) : KhalaniCoin =
+    record where amount = coin1.amount + coin2.amount
+  coinSplit (amount : Nat) (coin : KhalaniCoin) :
+      Option KhalaniCoin * KhalaniCoin =
+    if amount <= coin.amount then
+      ( some (record where amount = amount)
+      , record where amount = coin.amount - amount
+      )
+    else
+      (none, coin)
