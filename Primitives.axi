@@ -6,9 +6,10 @@ primitive
   // an address that signed the currently executed transaction
   whoami : Ledger -> Address * Ledger
   // create a new cell owned by a specified address
-  transfer : forall (A : Type1), Address -> A -> Ledger -> Address * Ledger
+  transfer : forall (A : Type1),
+    Address -> A -> Ledger -> Address * Ledger
   // destroy an existing cell owned by transaction signer
-  receive : forall @(A : Type1), Ledger -> Option A * Ledger
+  receive : forall @(A : Type1), Address -> Ledger -> Option A * Ledger
   // create a new mutable shared cell, accessible by everyone
   share : forall (A : Type1), A -> Ledger -> Address * Ledger
   // get an owned or a shared cell and set its new version
