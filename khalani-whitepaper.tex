@@ -125,6 +125,8 @@ However, these are only the standard features that plenty of functional programm
 
 In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with too many or too few uses resulting in a type error. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe send the NFT to the transaction's originator, maybe trade it for something else and handle that something else properly according to its quantity, or maybe send it to somebody as a gift. What the program cannot do in such a situation is forget the NFT and do nothing with it, effectively making it ``lost'' in the guts of the chain, nor copy the NFT and have two instead of just the original one.
 
+To make programmers' life easier, every type is also assigned its ``default'' quantity. Every variable will be assigned this quantity unless the programmer decides otherwise. An important piece of terminology: a type whose default quantity is unrestricted is called a \textit{data type}, whereas a type whose default quantity is either one, at least one or at most one, is called a \textit{resource type}. There are no types whose default quantity is zero. Elements of data types are called data, whereas elements of resource types are called resources.
+
 \begin{example}{Conservation of money}
 
 \lstinputlisting{CopyDrop.axi}
@@ -175,30 +177,54 @@ Moreover, this task can be offloaded to \textit{social learning}, i.e. after som
 
 \section{Interacting with the ledger in Axi}
 
-In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we'll discuss the big idea of how Axi works together with the ledger to make assets secure at all times. Then we'll look at the primitive (buil-in) types and functions that Axi can be used to interact with the ledger. Finally we'll see a slightly longer example of an on-chain service, together with examples transactions that set this service up and use it.
+In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we'll discuss the big idea behind Axi's interaction with the ledger, which we might call the ``resource lifecycle''. Then we'll recall a simplified ledger model and look at the primitive (buil-in) types and functions that represent it in Axi. Finally we'll see a slightly longer example of an on-chain service, together with example transactions that set this service up and use it.
 
-\subsection{The ledger model}
+\subsection{The resource lifecycle}
 
-TODO
+A new resource type is created by a transaction that deploys a package of Axi code that contains the definition of this resource type. The only exception is Gas, the native coin used to pay transaction fees, which is built-in, so it already exists at the origin block. Because packages live on-chain forever and cannot be deleted, a resource type, once it comes to life, will also exist forever.
 
-\subsection{The lifecycle of assets in a transaction}
-
-Combining Khalani's ledger model with Axi's elegant functional programming and powerful resource usage tracking at the type level results in a pleasant programming model characterized by a very high standard of safety and correctness. The typical program executed as part of a transaction will interact with the blockchain in three steps:
+The life cycle of a particular resource, i.e. an element of some resource type, consists of three stages:
 
 \begin{itemize}
-  \item \textbf{Withdraw}. First, resources are ``withdrawn'' from the blockchain state into the program. The ledger's ownership model ensures the safety of this step, for example by making sure that the program cannot withdraw resources that don't belong to the transaction's originator.
-  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system keeps an eye on them, silly operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on.
-  \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the blockchain. Again, the safety of this step is ensured by the ledger's ownership model.
+  \item \textbf{Creation}. At some point the resource is created according to the rules set by the package that contains the definition of the resource's type. After creation, the resource is placed on the ledger in a cell owned by somebody.
+  \item \textbf{Transaction(s)}. The resource might participate in transactions, if its owner wishes so. The owner might transfer his ownership of the resource freely, whereas programmatic interaction of the resource with other objects happens only according to the rules set by the defining package.
+  \item \textbf{Destruction (optional)}. If the defining package permits it, the resource might at some point be destroyed. Examples of destructible resources are stablecoins that are backed by an off-chain reserve, where a coin gets destroyed when its off-chain collateral is removed from the treasury, and a wrapper for an asset bridged from another blockchain, which gets destroyed when the external asset ceases to be bridged.
 \end{itemize}
 
-\subsection{Primitives}
+The most important part of the lifecycle, in which most resources will spend almost all their life, is the phase when they can participate in transactions. An ordinary transaction (i.e. one which does not deploy a new package) consists of an arbitrary Axi program that transforms the state of the ledger, which we'll call the \textit{transaction body}, and of some metadata, most importantly the \textit{transaction originator}. This program, when executed, interacts with the ledger in three steps:
+
+\begin{itemize}
+  \item \textbf{Withdraw}. First, resources are ``withdrawn'' from the ledger into the program. The ledger's ownership model ensures the safety of this step, for example by making sure that the program cannot withdraw resources that don't belong to the transaction originator.
+  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system keeps an eye on them, nonsensical operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on.
+  \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the ledger. The safety of this step is partially ensured by the type system, which checks that all resources held by the program are deposited back. However, since resources can be freely transferred, it's up to the transaction author to make sure that they are transferred to the correct address and not to somebody else.
+\end{itemize}
+
+\subsection{A simplified ledger model and Axi primitives}
+
+Everything on-chain is stored in cells. Each cell has an address and some metadata, which won't concern us for now. There are two main kinds of cells: an \textit{object} is a cell that holds data or assets, whereas a \textit{package cell} is a cell that holds a single package of Axi code (possibly split into smaller units called \textit{modules}). Every object, besides its address and metadata, also has an (Axi) type, and stores exactly one value of that type.
+
+Addresses, besides pointing to cells, also have a different, separate use: they may act as the identity of an \textit{account}. Accounts are used by external actors to interact with the blockchain, similarly to EOAs (Externally Owned Accounts) on Ethereum.
+
+Objects are either \textit{owned} or \textit{shared}. Owned objects have exactly one owner who is an account. Shared objects do not have an owner. They are further subdivided into \textit{mutable shared objects}, which contain resources and can be interacted with by anybody, and \textit{immutable shared objects}, which contain data and can be read by anybody, but not modified.
+
+\begin{example}{Axi primitives for interacting with the ledger}
 
 \lstinputlisting{Primitives.axi}
 
+\end{example}
+
+\newcommand{\code}[1]{{\small \texttt{#1}}}
+
+The above code listing shows the most important primitives (built-ins) available in Axi. \code{Ledger} is an abstract resource type that represents the ledger. Every function that interacts with the ledger takes an argument of this type and also returns a value of this type. Linear types guarantee that the input ledger must be used exactly once and that a new version of the ledger must be returned. The transaction context will provide exactly one value of this type. Together these conditions guarantee that at any point during the execution of any program there is only a single value of this type, so the ledger cannot be ``forked'' in any way. An example function that needs the ledger is \code{whoami}, which consumes the old ledger and returns the account that is the originator of the current transaction, together with a new ledger. Here \code{Address} is the type of addresses, including accounts.
+
+\code{transfer} is a function that takes an account and a value of some type, together with a ledger, creates a new cell on the ledger that contains this value and belongs to that account, and returns the address of the cell together with a new ledger. This is the functions that on-chain programs will use to ``deposit'' resources back onto the ledger.
+
+\code{receive} is a function that takes a cell address, together with a ledger, and returns an optional value of some type, together with the new ledger.
+
+
 \subsection{A longer example}
 
-\begin{example}[Donut Shop]
-  \href{https://www.notion.so/Intent-examples-287aa41e1cf68031bef1fe23a3db0d8a?source=copy_link#28faa41e1cf6807e88b3cbf5f05cccbd}{Click to see the donut shop example on Notion}
+\begin{example}{Donut Shop}
 
 \lstinputlisting{DonutShop.axi}
 
