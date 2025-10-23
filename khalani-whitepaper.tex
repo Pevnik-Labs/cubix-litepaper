@@ -142,16 +142,16 @@ Axi's logic layer consists of typed classical higher-order logic with equality w
   \item \textbf{Quantification over terms and types}. Axi supports universal and existential quantification. We can quantify over terms of a given type ($\forall x : A, \dots$) as well as over types themselves ($\forall A : \texttt{Type}, \dots$), no matter whether we're dealing with data, resources or programs.
   \item \textbf{Higher-order quantification}. We can also quantify over logical entities like propositions ($\forall P : \texttt{Prop}, \dots$), predicates ($\forall P : A \rightarrow \texttt{Prop}, \dots$), relations ($\forall R : A \rightarrow A \rightarrow \texttt{Prop}, \dots$), logical connectives ($\forall C : \texttt{Prop} \rightarrow \texttt{Prop} \rightarrow \texttt{Prop}, \dots$) or even quantifiers themselves ($\forall Q : (A \rightarrow \texttt{Prop}) \rightarrow \texttt{Prop}, \dots$). This ability of logic to talk not only about the underlying programming language, but also about itself, gives it great expressive power and allows it to make use of all of mathematics when reasoning about the behaviour of programs.
   \item \textbf{Equality}. The built-in equality relation ($=$) makes it possible to precisely reason about programs' input-output behaviour.
-  \item \textbf{Classical principles}. Unlike many other type-theoretical systems, we assume the Law of Excluded Middle as well as the Axiom of Choice, which makes the logic classical and thus intimately familiar to all mathematicians.
+  %\item \textbf{Classical principles}. Unlike many other type-theoretical systems, we allow proof by contradiction, which entails all the other classical propositional principles, like the Law of Excluded Middle and Double Negation Elimination. Because the logic is classical, it will be intimately familiar to all mathematicians.
 \end{itemize}
 
-Proving is carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic - instead of being primitives, negation ($\sim P$) is a shorthand for an implication into falsehood ($P \implies \bot$), whereas biconditional ($P \iff Q$) is a shorthand for a conjunction of two implications ($(P \implies Q) \land (Q \implies P)$).
+Proving is carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic - instead of being primitives, negation ($\sim P$) is a shorthand for an implication into falsehood ($P \implies \bot$), whereas biconditional ($P \iff Q$) is a shorthand for a conjunction of two implications ($(P \implies Q) \land (Q \implies P)$). The principle of \textit{proof by contradiction}, which allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$, makes the logic classical and thus intimately familiar to all mathematicians.
 
 One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proof term style}, similar to how proofs look in Agda and Idris (as well as Coq's and Lean's manually written proof terms), or in a \textit{tactic style}, similar to how proofs usually look in Coq or Lean. The difference between Axi and languages that also support both styles, like Coq and Lean, is that in these languages each style is its own separate proof language, whereas in Axi there is a single proof language which, thanks to a clever parser, can be formatted either like terms or like tactics. This feature will make it easier to accomodate computer scientists and mathematicians familiar with either of the aforementioned languages.
 
 Equality is handled as in Martin-Löf Type Theory - proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, Axi provides a convenient feature called \textit{chaining}, which allows reasoning with long chains of equations by writing down and justifying each step separately, similarly to how equality is usually handled with pen and paper. Besides equality, this feature also supports implications, biconditionals and other transitive relations.
 
-Classical logic is realized using two primitives. Proof by contradiction allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$. The Axiom of Choice works as follows: while writing a program for the purpose of using it in a proof, we are allowed make use of a new primitive, \texttt{choose}, which turns a proof of $\exists x : A, P\ x$ into an element of type $A$. These programs that make use of the Axiom of Choice are not part of Axi's programming layer and cannot be run, but since their sole purpose is to be used as part of a proof, this does not pose any problems. Axi's handling of the Axiom of Choice might seem strange to mathematicians at first glance, but this presentation makes it convenient to use in practice together with the rest of the proof language. This approach to the Axiom of Choice was inspired by the Lean proof assistant.
+%The Axiom of Choice works as follows: while writing a program for the purpose of using it in a proof, we are allowed make use of a new primitive, \texttt{choose}, which turns a proof of $\exists x : A, P\ x$ into an element of type $A$. These programs that make use of the Axiom of Choice are not part of Axi's programming layer and cannot be run, but since their sole purpose is to be used as part of a proof, this does not pose any problems. Axi's handling of the Axiom of Choice might seem strange to mathematicians at first glance, but this presentation makes it convenient to use in practice together with the rest of the proof language. This approach to the Axiom of Choice was inspired by the Lean proof assistant.
 
 \begin{example}{A simple proof}
 
@@ -177,7 +177,49 @@ Moreover, this task can be offloaded to \textit{social learning}, i.e. after som
 
 \section{Interacting with the ledger in Axi}
 
-In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we'll discuss the big idea behind Axi's interaction with the ledger, which we might call the ``resource lifecycle''. Then we'll recall a simplified ledger model and look at the primitive (buil-in) types and functions that represent it in Axi. Finally we'll see a slightly longer example of an on-chain service, together with example transactions that set this service up and use it.
+In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we will discuss a simplified ledger model, which we will use in the remaining code examples, and look at the primitive (buil-in) types and functions that represent it in Axi. Then we will give an overview of the big idea behind Axi's interaction with the ledger, which we might call the ``resource lifecycle''. Finally we will discuss a slightly longer example of an on-chain service, together with example transactions that set this service up and use it.
+
+\subsection{A simplified ledger model and Axi primitives}
+
+We will use the word \textit{ledger} to refer to the state of the blockchain. Things on the ledger have their addresses. The three kinds of addresses are \textit{accounts}, \textit{package addresses} and \textit{cell addresses} (or just addresses for short).
+
+Accounts are addresses that act as the identities of external actors. They allow them to interact with the blockchain, similarly to EOAs (Externally Owned Accounts) on Ethereum.
+
+All Axi code deployed onto the ledger is stored in a big codebase, divided into \textit{packages}. Package addresses are means of locating these packages in this codebase. Packages are further subdivided into smaller units, called \textit{modules}, which hold definitions of types, interfaces, constants and functions.
+
+Data and resources on the ledger are stored in \textit{cells}, also called \textit{objects}. Each cell has an address and a type, and stores exactly one value of that type. Cells also have some metadata which won't concern us for now.
+
+Objects are either \textit{owned} or \textit{shared}. Owned objects have exactly one owner who is an account. Shared objects do not have an owner. Shared objects are further subdivided into \textit{mutable shared objects}, which contain resources and can be interacted with by anybody (any account or object) according to the interface set by the package defining the object's type, and \textit{immutable shared objects}, which contain data but not resources and can be read by anybody, but not modified.
+
+The state of the ledger is modified by transactions. Every transaction has a \textit{transaction originator} and a \textit{transaction body}, which is an Axi function that describes how to modify the ledger. Transactions also have some additional metadata which won't concern us here.
+
+\begin{example}{Axi primitives for interacting with the ledger}
+
+\lstinputlisting{Primitives.axi}
+
+\end{example}
+
+\newcommand{\code}[1]{{\small \texttt{#1}}}
+
+The above code listing shows the most important primitives (built-ins) available in Axi. \code{Address} is the data type of addresses, including accounts. \code{Ledger} is an abstract type that represents (the current state of) the ledger. The body of a transaction is a function of type \code{Ledger -> Ledger}.
+
+Every function that interacts with the ledger takes (the current version of) the ledger as input and also returns (the new version of) the ledger as output. In general, the type of such a function is \code{A -> Ledger -> B * Ledger}, i.e. it takes a value of some type \code{A} and the ledger, and returns a value of some type \code{B} and the (updated) ledger.
+
+The transaction body will, in general, be composed of many such functions. It will get the initial input of type \code{Ledger} from the transaction context and then pass it to the first of these functions, which will in turn pass it to the second one, and so on. Because \code{Ledger} is a resource type, the type system guarantees that values of this type cannot be copied or deleted. This means that the ledger is acted upon and then passed further and further until the transaction body returns the final modified version of it.
+
+An example function that needs the ledger is \code{whoami}, which consumes the old ledger and returns the account address that is the originator of the current transaction, together with a new ledger.
+
+\code{transfer} is a function that takes an account address and a value of some type, together with the ledger, creates a new cell on the ledger that contains this value and belongs to that account, and returns the address of the created cell together with the new ledger.
+
+\code{receive} is a function that takes a cell address, together with the ledger, and returns an optional value of some type \code{A}, together with the new ledger. If the transaction originator is not the owner of the cell, or the value stored in the cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some a}, where \code{a} is the value that was stored in this cell.
+
+\code{share} is a function that takes a value of some type \code{A}, together with the ledger, creates a new mutable shared cell that contains this value, and returns the address of the created cell together wtih the new ledger.
+
+\code{freeze} is a function that takes a value (which must be data and not a resource), together with the ledger, creates a new immutable shared cell that contains this value, and returns the address of the created cell together with the new ledger.
+
+\code{peek} is a function that takes an address, together with the ledger, reads the contants of an immutable shared cell under this address, and returns an optional value of some type \code{A} together with the new ledger. If the address does not point to an immutable shared cell, or the value stored in that cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some a}, where \code{a} is the data stored in the cell.
+
+\code{update} is a function that takes a cell address, together with the ledger, and returns the new ledger, together with the result of type \code{Option (A * (A -> Unit))}. If the cell is owned but the transaction originator is not the owner, or the address does not point to a shared mutable cell, or the value stored in the cell is not of type \code{A}, the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some (a, f)}. Here \code{a} is the value stored in the cell, whereas \code{f} is a callback which, when given \code{a'} as input, sets \code{a'} as the new contents of the cell and returns a dummy output. Note that \code{A -> Unit} is a resource type, so the type system makes sure that the callback is eventually called.
 
 \subsection{The resource lifecycle}
 
@@ -199,29 +241,6 @@ The most important part of the lifecycle, in which most resources will spend alm
   \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the ledger. The safety of this step is partially ensured by the type system, which checks that all resources held by the program are deposited back. However, since resources can be freely transferred, it's up to the transaction author to make sure that they are transferred to the correct address and not to somebody else.
 \end{itemize}
 
-\subsection{A simplified ledger model and Axi primitives}
-
-Everything on-chain is stored in cells. Each cell has an address and some metadata, which won't concern us for now. There are two main kinds of cells: an \textit{object} is a cell that holds data or assets, whereas a \textit{package cell} is a cell that holds a single package of Axi code (possibly split into smaller units called \textit{modules}). Every object, besides its address and metadata, also has an (Axi) type, and stores exactly one value of that type.
-
-Addresses, besides pointing to cells, also have a different, separate use: they may act as the identity of an \textit{account}. Accounts are used by external actors to interact with the blockchain, similarly to EOAs (Externally Owned Accounts) on Ethereum.
-
-Objects are either \textit{owned} or \textit{shared}. Owned objects have exactly one owner who is an account. Shared objects do not have an owner. They are further subdivided into \textit{mutable shared objects}, which contain resources and can be interacted with by anybody, and \textit{immutable shared objects}, which contain data and can be read by anybody, but not modified.
-
-\begin{example}{Axi primitives for interacting with the ledger}
-
-\lstinputlisting{Primitives.axi}
-
-\end{example}
-
-\newcommand{\code}[1]{{\small \texttt{#1}}}
-
-The above code listing shows the most important primitives (built-ins) available in Axi. \code{Ledger} is an abstract resource type that represents the ledger. Every function that interacts with the ledger takes an argument of this type and also returns a value of this type. Linear types guarantee that the input ledger must be used exactly once and that a new version of the ledger must be returned. The transaction context will provide exactly one value of this type. Together these conditions guarantee that at any point during the execution of any program there is only a single value of this type, so the ledger cannot be ``forked'' in any way. An example function that needs the ledger is \code{whoami}, which consumes the old ledger and returns the account that is the originator of the current transaction, together with a new ledger. Here \code{Address} is the type of addresses, including accounts.
-
-\code{transfer} is a function that takes an account and a value of some type, together with a ledger, creates a new cell on the ledger that contains this value and belongs to that account, and returns the address of the cell together with a new ledger. This is the functions that on-chain programs will use to ``deposit'' resources back onto the ledger.
-
-\code{receive} is a function that takes a cell address, together with a ledger, and returns an optional value of some type, together with the new ledger.
-
-
 \subsection{A longer example}
 
 \begin{example}{Donut Shop}
@@ -229,6 +248,16 @@ The above code listing shows the most important primitives (built-ins) available
 \lstinputlisting{DonutShop.axi}
 
 \end{example}
+
+\section{The core calculus of Axi}
+
+In this section we will give a draft of the formal definition of the core calculus which lies at the foundation of Axi. This draft is not complete, as it covers only the core of the programming layer of Axi -- functions, polymorphism, some primitive types and the machinery behind linear typing -- but is missing some more advanced programming features (like type operators), the more mundane features like algebraic data types, modules and packages, as well as the logic layer.
+
+\href{https://github.com/tvl-labs/T-Axi/blob/master/Theory/Theory.pdf}{Click to see slides with the theory}
+
+\end{appendices}
+
+\end{document}
 
 %\begin{figure}[tp!]
 %  \begin{mathpar}
@@ -240,13 +269,3 @@ The above code listing shows the most important primitives (built-ins) available
 %  \caption{Something something.}
 %  \label{fig:wf}
 %\end{figure}
-
-\section{The core calculus of Axi}
-
-In this section we will give a draft of the formal definition of the core calculus which lies at the foundation of Axi. This draft is not complete, as it covers only the core of the programming layer of Axi -- functions, polymorphism, some primitive types and the machinery behind linear typing -- but is missing some more advanced programming features (like type operators), the more mundane features like algebraic data types, modules and packages, as well as the logic layer.
-
-\href{https://github.com/tvl-labs/T-Axi/blob/master/Theory/Theory.pdf}{Click to see slides with the theory}
-
-\end{appendices}
-
-\end{document}
