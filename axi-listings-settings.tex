@@ -4,7 +4,19 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinelanguage{Axi}{
-  morekeywords={primitive,forall,interface,instance,let,in,if,then,else,do,record,type,where,match,with},
+  morekeywords={
+    primitive,
+    forall,
+    interface,
+    instance,
+    let,in,
+    if,then,else,
+    do,
+    record,data,type,where,
+    induction,match,with,ind,
+    theorem,proof,qed,
+    assume,
+    chaining},
   sensitive=true,
   morecomment=[l]{//},     % line comment
   morecomment=[s]{/*}{*/}, % block comment
@@ -15,6 +27,7 @@
            {|}{{{\color{codegray}|}}}{1}
            {,}{{{\color{codegray},}}}{1}
            {.}{{{\color{codegray}.}}}{1}
+           {&}{{{\color{codegray}\&}}}{1}
            {\{\}}{{{\color{codegray}\{\}}}}{1}
            {()}{{{\color{codegray}()}}}{1}
            {0}{{{\color{codegray}0}}}{1}
@@ -31,6 +44,7 @@
            {+}{{{\color{teal}+}}}{1}
            {*}{{{\color{teal}*}}}{1}
            {==}{{{\color{teal}==}}}{1}
+           {===}{{{\color{teal}===}}}{2}
 }
 
 \lstdefinestyle{Axi-style}{

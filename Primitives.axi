@@ -18,9 +18,15 @@ primitive
   // create a new mutable shared cell, accessible by everyone
   share : forall (A : Type1), A -> Ledger -> Address * Ledger
 
+  // the cell type, parameterized by the type of its contents
+  Cell : Type1 -> Type 1
+
+  // replace and retrieve the contents of a cell
+  exchange : A -> Cell A -> A * Cell A
+
   // get an owned or a shared cell and set its new version
   update : forall @(A : Type1),
-    Address -> Ledger -> Option (A * (A -> Unit)) * Ledger
+    Address -> Ledger -> Option (Cell A * (Cell A -> Ledger -> Ledger)) * Ledger
 
   // create a new immutable shared cell, accessible by everyone
   freeze : forall (A : Type), A -> Ledger -> Address * Ledger
