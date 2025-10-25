@@ -32,7 +32,7 @@ init (ledger : Ledger)
     record where
       myShop = shopRef in
   let shop : DonutShop = record where
-    thisShop = shopRef
+    thisShop = addressof shopRef
     price = 1000
     balance = coinZero
     nextSerialNumber = 0 in
