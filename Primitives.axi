@@ -9,24 +9,26 @@ primitive
   whoami : Ledger -> Address * Ledger
 
   // create a new cell owned by a specified address
-  transfer : forall (A : Type1),
-    Address -> A -> Ledger -> Address * Ledger
+  new : forall (A : Type1), Address -> Ledger -> Address * (A -> Ledger)
 
   // destroy an existing cell owned by transaction signer
-  receive : forall @(A : Type1), Address -> Ledger -> Option A * Ledger
+  delete : forall @(A : Type1), Address -> Ledger -> Option A * Ledger
+
+  // reference to a shared cell
+  Ref : Type1 -> Type
 
   // create a new mutable shared cell, accessible by everyone
-  share : forall (A : Type1), A -> Ledger -> Address * Ledger
+  share : forall (A : Type1), Ledger -> Ref A * (A -> Ledger)
 
-  // the cell type, parameterized by the type of its contents
-  Cell : Type1 -> Type 1
+  // load contents of a shared cell and then store a new value
+  update : Ref A -> Ledger -> A * (A -> Ledger)
 
-  // replace and retrieve the contents of a cell
-  exchange : A -> Cell A -> A * Cell A
+  // upcast a reference to an address
+  addressof : forall (A : Type1), Ref A -> Address
 
-  // get an owned or a shared cell and set its new version
-  update : forall @(A : Type1),
-    Address -> Ledger -> Option (Cell A * (Cell A -> Ledger -> Ledger)) * Ledger
+  // downcast an address to a reference
+  referenceof : forall @(A : Type1),
+    Address -> Ledger -> Option (Ref A) * Ledger
 
   // create a new immutable shared cell, accessible by everyone
   freeze : forall (A : Type), A -> Ledger -> Address * Ledger

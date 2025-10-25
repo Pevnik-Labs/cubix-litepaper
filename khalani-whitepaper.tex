@@ -209,17 +209,17 @@ The transaction body will, in general, be composed of many such functions. It wi
 
 An example function that needs the ledger is \code{whoami}, which consumes the old ledger and returns the account address that is the originator of the current transaction, together with a new ledger.
 
-\code{transfer} is a function that takes an account address and a value of some type, together with the ledger, creates a new cell on the ledger that contains this value and belongs to that account, and returns the address of the created cell together with the new ledger.
+\code{new} is a function that takes an account address and a value of some type, together with the ledger, creates a new cell on the ledger that contains this value and belongs to that account, and returns the address of the created cell together with the new ledger.
 
-\code{receive} is a function that takes a cell address, together with the ledger, and returns an optional value of some type \code{A}, together with the new ledger. If the transaction originator is not the owner of the cell, or the value stored in the cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some a}, where \code{a} is the value that was stored in this cell.
+\code{delete} is a function that takes a cell address, together with the ledger, and returns an optional value of some type \code{A}, together with the new ledger. If the transaction originator is not the owner of the cell, or the value stored in the cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds, the cell is destroyed and the result is \code{some a}, where \code{a} is the value that was stored in this cell.
 
-\code{share} is a function that takes a value of some type \code{A}, together with the ledger, creates a new mutable shared cell that contains this value, and returns the address of the created cell together wtih the new ledger.
+\code{share} is a function that takes a value of some type \code{A}, together with the ledger, creates a new mutable shared cell that contains this value, and returns the reference to the created cell together wtih the new ledger.
 
 \code{freeze} is a function that takes a value (which must be data and not a resource), together with the ledger, creates a new immutable shared cell that contains this value, and returns the address of the created cell together with the new ledger.
 
 \code{peek} is a function that takes an address, together with the ledger, reads the contants of an immutable shared cell under this address, and returns an optional value of some type \code{A} together with the new ledger. If the address does not point to an immutable shared cell, or the value stored in that cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some a}, where \code{a} is the data stored in the cell.
 
-\code{update} is a function that takes a cell address, together with the ledger, and returns the new ledger, together with the result of type \code{Option (A * (A -> Unit))}. If the cell is owned but the transaction originator is not the owner, or the address does not point to a shared mutable cell, or the value stored in the cell is not of type \code{A}, the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some (a, f)}. Here \code{a} is the value stored in the cell, whereas \code{f} is a callback which, when given \code{a'} as input, sets \code{a'} as the new contents of the cell and returns a dummy output. Note that \code{A -> Unit} is a resource type, so the type system makes sure that the callback is eventually called.
+\code{update} is a function that takes a reference to a shared cell, together with the ledger, and returns a value of some type \code{A} together with a callback that when called with the new value of the cell, returns the new ledger. Note that this callback has a resource type \code{A -> Ledger}, so the type system makes sure that the callback is eventually called once.
 
 \subsection{The resource lifecycle}
 

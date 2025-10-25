@@ -1,28 +1,46 @@
-// Donut - simple purchasable object
-record type Donut : Type1 where
+module DonutShop where
+
+// exporting the types would allow public access
+// to constructors and record updates
+// since the types are mentioned in the signatures
+// the types will be public but opaque
+export
+  init
+  buyDonut
+  collectProfits
+
+// Donut - simple purchasable object, can be used at most once
+record type Donut : Type? where
   serialNumber : Nat
+
+record type DonutShopOwnershipToken : Type where
+  myShop : Ref DonutShop
 
 // Donut shop - shared object
 record type DonutShop : Type1 where
-  owner : Address
+  thisShop : Ref DonutShop
   price : Nat
   balance : KhalaniCoin
   nextSerialNumber : Nat
 
 // Create a donut shop
-init (ledger : Ledger) : Address * Ledger =
-  let (sender, ledger) = whoami ledger in
+init (ledger : Ledger)
+: DonutShopOwnershipToken * Ledger
+= let (shopRef, shopToLedger) = share ledger in
+  let ownership : DonutShopOwnershipToken =
+    record where
+      myShop = shopRef in
   let shop : DonutShop = record where
-    owner = sender
+    thisShop = shopRef
     price = 1000
     balance = coinZero
     nextSerialNumber = 0 in
-  share shop ledger
+  (ownership, shopRef, shopToLedger shop)
 
 // One can buy a donut for a set price
-buyDonut (payment : KhalaniCoin) (shop : DonutShop) :
-    Option Donut * KhalaniCoin * DonutShop =
-  let (splitResult, change) = coinSplit shop.price payment in
+buyDonut (payment : KhalaniCoin) (shop : DonutShop)
+: Option Donut * KhalaniCoin * DonutShop
+= let (splitResult, change) = coinSplit shop.price payment in
   match splitResult with
   | none => (none, change, shop)
   | some paid =>
@@ -35,15 +53,10 @@ buyDonut (payment : KhalaniCoin) (shop : DonutShop) :
     let donut : Donut = record where serialNumber = newSerialNumber in
     (some donut, change, newShop)
 
-// Consume donut and get nothing useful in return
-eatDonut (donut : Donut) : Unit =
-  let record {} = donut in ()
-
 // Collects profits from shop (succeeds only for owner)
-collectProfits (shop : DonutShop) (ledger : Ledger) :
-    KhalaniCoin * DonutShop * Ledger =
-  let (sender, ledger) = whoami ledger in
-  if shop.owner == sender then
+collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
+: KhalaniCoin * DonutShop
+= if addressof ownership.myShop == addressof shop.thisShop then
     let profits = shop.balance in
     let newShop = record shop with balance = coinZero in
     (profits, newShop, ledger)
