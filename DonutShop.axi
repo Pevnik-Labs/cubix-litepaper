@@ -14,15 +14,15 @@ export
 record type Donut : Type? where
   serialNumber : Nat
 
-record type DonutShopOwnershipToken : Type where
-  myShop : Ref DonutShop
-
 // Donut shop - shared object
 record type DonutShop : Type1 where
   thisShop : Address
   price : Nat
   balance : KhalaniCoin
   nextSerialNumber : Nat
+
+record type DonutShopOwnershipToken : Type where
+  myShop : Ref DonutShop
 
 // Create a donut shop
 init (ledger : Ledger)
