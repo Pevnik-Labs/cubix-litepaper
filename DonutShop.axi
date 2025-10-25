@@ -5,6 +5,7 @@ module DonutShop where
 // since the types are mentioned in the signatures
 // the types will be public but opaque
 export
+  myShop
   init
   buyDonut
   collectProfits
@@ -18,7 +19,7 @@ record type DonutShopOwnershipToken : Type where
 
 // Donut shop - shared object
 record type DonutShop : Type1 where
-  thisShop : Ref DonutShop
+  thisShop : Address
   price : Nat
   balance : KhalaniCoin
   nextSerialNumber : Nat
@@ -56,7 +57,7 @@ buyDonut (payment : KhalaniCoin) (shop : DonutShop)
 // Collects profits from shop (succeeds only for owner)
 collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
 : KhalaniCoin * DonutShop
-= if addressof ownership.myShop == addressof shop.thisShop then
+= if addressof ownership.myShop == shop.thisShop then
     let profits = shop.balance in
     let newShop = record shop with balance = coinZero in
     (profits, newShop, ledger)

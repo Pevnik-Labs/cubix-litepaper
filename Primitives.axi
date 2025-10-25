@@ -18,10 +18,10 @@ primitive
   Ref : Type1 -> Type
 
   // create a new mutable shared cell, accessible by everyone
-  share : forall (A : Type1), Ledger -> Ref A * (A -> Ledger)
+  share : forall @(A : Type1), Ledger -> Ref A * (A -> Ledger)
 
   // load contents of a shared cell and then store a new value
-  update : Ref A -> Ledger -> A * (A -> Ledger)
+  update : forall (A : Type1), Ref A -> Ledger -> A * (A -> Ledger)
 
   // upcast a reference to an address
   addressof : forall (A : Type1), Ref A -> Address
