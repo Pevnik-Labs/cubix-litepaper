@@ -1,20 +1,19 @@
-theorem revApp-map @(A : Type) @(B : Type) (f : A -> B) (xs : List A) :
-  forall @(ys : List A), revApp (map f xs) ys === mapRevApp f xs ys
+theorem app-assoc :
+  forall (A : Type) (l1 l2 l3 : List A),
+    app (app l1 l2) l3 === app l1 (app l2 l3)
 proof
-  induction xs with
+  pick-any A l1
+  induction l1 with
   | nil =>
-    assume ys
+    pick-any l2 l3
     chaining
-      === revApp (map f nil) ys
-      === revApp nil ys
-      === ys
-      === mapRevApp f nil ys
-  | cons x (xs & ind xsIH) =>
-    assume ys
+      === app (app nil l2) l3
+      === app nil (app l2 l3)
+  | cons h (t & ind IH) =>
+    pick-any l2 l3
     chaining
-      === revApp (map f (cons x xs)) ys
-      === revApp (cons (f x) (map f xs)) ys
-      === revApp (map f xs) (cons (f x) ys)
-      === mapRevApp f xs (cons (f x) ys)    by xsIH (cons (f x) ys)
-      === mapRevApp f (cons x xs) ys
+      === app (app (cons h t) l2) l3
+      === cons h (app (app t l2) l3)
+      === cons h (app t (app l2 l3))  by rewrite IH
+      === app (cons h t) (app l2 l3)
 qed
