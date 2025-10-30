@@ -77,7 +77,7 @@
 
 \section{A deeper dive into Axi}
 
-Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a purely functional programming language with a strong, static, linear type system and support for formal reasoning about programs in classical higher-order logic. Among mainstream programming languages, it is most similar to Haskell (in spirit) and OCaml (syntactically). It was also heavily inspired by proof assistants based on Type Theory, like Coq, Lean and Agda.
+Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a purely functional programming language with a strong, static, linear type system and support for formal reasoning about programs in classical higher-order logic. Among mainstream programming languages, it is most similar to Haskell (in spirit) and OCaml (syntactically). It was also heavily inspired by proof assistants based on type theory, like Coq, Lean and Agda.
 
 In this appendix we will have a brief, not too technical look at the philosophy and language features of Axi, together with a few simple code examples.
 
@@ -85,7 +85,7 @@ In this appendix we will have a brief, not too technical look at the philosophy 
 
 Axi's architecture is unique in that the language is split into two strictly separate layers: the programming layer and the logic layer.
 
-\textbf{The Programming Layer} of Axi is a purely functional language based on System F with algebraic data types and a resource-aware type system. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
+\textbf{The Programming Layer} of Axi is a purely functional language based on System F with quantitative typing (linear, affine, relevant and unrestricted types) and algebraic data types. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
 
 \begin{itemize}
   \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash (unless they run out of gas), can't perform nonsensical operations like adding a number and a string, and can't result in any other runtime type error.
@@ -93,47 +93,78 @@ Axi's architecture is unique in that the language is split into two strictly sep
   \item \textbf{Resource safety}. Well-typed programs can't access resources they don't have permission to, can't delete tokens that are not supposed to be deletable and can't create money out of thin air.
 \end{itemize}
 
-\textbf{The Logic Layer} of Axi is a language for reasoning about Axi programs in classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their smart contracts. These specifications can then be either tested with random inputs before deployment, checked for concrete inputs at runtime, or proved for all possible inputs using logic. The last of these, proving, provides guarantees much more powerful than those of the type system alone, while being as credible and trustworthy as the type system. The use of the logic layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although competition will encourage programmers to do so in the hopes of outcompeting other programmers' smart contracts by providing stronger guarantees.
+\textbf{The Logic Layer} of Axi is a language for reasoning about Axi programs in classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their programs. These specifications can then be either tested with random inputs before deployment, checked for concrete inputs at runtime, or proved for all possible inputs using logic. The last of these, proving, provides guarantees much more powerful than those of the type system alone, while being as credible and trustworthy as the type system. The use of the logic layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although competition will encourage programmers to do so in the hopes of outcompeting other programmers' smart contracts by providing stronger guarantees.
 
-\textbf{Strict separation}. Logic can reason about programs, but programs cannot manipulate logical entities, like theorems or proofs, at runtime. This one-way interaction keeps the language relatively simple, while still making it possible to express almost all functional programming idioms and all possible mathematical properties and their proofs.
+\textbf{Strict separation}. In Axi, logic can reason about programs, but programs cannot manipulate logical entities, like theorems or proofs, at runtime. This one-way interaction keeps the language relatively simple, while still making it possible to express almost all functional programming idioms and all possible mathematical properties and their proofs.
 
-\textbf{Guarantees all the way down.} We not only want Axi to provide strong guarantees about its programs, but we also want to provide strong guarantees about Axi itself. We plan to use the Coq proof assistant to formally verify significant portions of Axi's metatheory, including the aforementioned properties of type and resource safety, as well as the consistency of Axi's logic. We are also considering formal verification of the reference implementation of Axi. The goal of these efforts is to ensure that the guarantees that Axi provides are trustworthy and will stay so forever, as long as the consensus protocol is followed.
+\textbf{Guarantees about guarantees}. We not only want Axi to provide strong guarantees about its programs, but we also want to provide strong guarantees about Axi itself. We plan to use the Coq proof assistant to formally verify significant portions of Axi's metatheory, including the aforementioned properties of type and resource safety, as well as the consistency of Axi's logic. We are also considering formal verification of the reference implementation of Axi. The goal of these efforts is to ensure that the guarantees that Axi provides are trustworthy and will stay so forever, as long as the consensus protocol is followed.
 
 
 \subsection{Language features}
 
-In this section, we will take a closer look at Axi's language features.
+In this section we will take a closer look at Axi's language features and see some code examples that demonstrate their use in practice. Note that Axi is not implemented yet, so that the code examples are only an approximation of what we intend to achieve, instead of being a demonstration of an existing language.
 
 \subsubsection{The Programming Layer}
 
-Axi is, at its core, a purely functional programming language descending from the ML family. Thus, it supports all the usual features of such languages:
+%{Purely functional programming}
+
+Axi is, at its core, a purely functional programming language. It thus supports all the usual features of such languages:
 
 \begin{itemize}
   \item \textbf{Purity amd immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. This facilitates reasoning about and comprehending code, thus rendering Axi smart contracts transparent and auditable.
   \item \textbf{First-class, higher-order and anonymous functions}. Functions are first class citizens. They can be passed as arguments to other functions, returned from other functions as results and created on the fly. Axi encourages a programming style in which data is processed by pipelines built from basic building blocks like mapping, reducing, filtering and so on.
   \item \textbf{Algebraic data types and exhaustive pattern-matching}. Instead of clunky boolean flags and cascades of ifs, Axi makes it easy to model the problem domain with disjoint unions and define functions on them by pattern matching and explicitly handling all possible cases.
   \item \textbf{Strong static type system}. Axi's type system makes it easy to work with high-level abstractions, like merkle trees or state machines, instead of low-level primitives, like integers or byte arrays. It is lightweight, not placing too many demands on the programmer, but still catches the most egregious errors -- it can easily protect programmers from confusing with each other such objects as an integer, a string, an address, a transaction hash, a token amount and a cryptographic secret.
-  \item \textbf{Polymorphism and interfaces}. Axi's type system features polymorphism (also known as ``generics'') as well as interfaces inspired by Haskell's type classes. These features make it easy to implement data structures and functions that work for all types that support a certain behaviour, for example a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
+  \item \textbf{Polymorphism and traits}. Axi's type system features polymorphism (also known as ``generics'') as well as traits inspired by Haskell's type classes (but named after Rust's traits). These features make it easy to implement data structures and functions that work for all types that support a certain behaviour, for example a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
 \end{itemize}
 
-\begin{example}{An example program}
+\begin{example}{An example program -- list functions}
 
 \lstinputlisting{FunProg.axi}
 
 \end{example}
 
-However, these are only the standard features that plenty of functional programming languages have. The killer feature, as far as the programming layer is concerned, are linear types, which allow the type system to enforce correct resource usage discipline. This aspect of Axi's type system was inspired by linear logic and its cousin, Quantitative Type Theory, and is an improvement upon an analogous feature of the type system of Move, the programming language of the Sui and Aptos blockchains.
+\newcommand{\code}[1]{{\small \texttt{#1}}}
 
-In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with too many or too few uses resulting in a type error. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe send the NFT to the transaction's originator, maybe trade it for something else and handle that something else properly according to its quantity, or maybe send it to somebody as a gift. What the program cannot do in such a situation is forget the NFT and do nothing with it, effectively making it ``lost'' in the guts of the chain, nor copy the NFT and have two instead of just the original one.
+The above example demonstrates the basics of Axi programming. In lines 1-3 we define an algebraic data type called \code{List}. The type is parameterized by a type \code{A} and has two constructors: \code{nil} is the empty list and \code{cons h t} is the list with head \code{h} and tail \code{t}. Both annotations \code{:\ Type} are necessary, because we need to indicate that both \code{A} and \code{List A} are unrestricted types, as opposed to linear, affine or relevant (we will see these in later examples).
 
-To make programmers' life easier, every type is also assigned its ``default'' quantity. Every variable will be assigned this quantity unless the programmer decides otherwise. An important piece of terminology: a type whose default quantity is unrestricted is called a \textit{data type}, whereas a type whose default quantity is either one, at least one or at most one, is called a \textit{resource type}. There are no types whose default quantity is zero. Elements of data types are called data, whereas elements of resource types are called resources.
+In lines 5-8 we define a function called \code{app} which concatenates two lists. It takes three arguments: a type \code{A} and two lists \code{l1} and \code{l2} of type \code{List A}, and returns a result of type \code{List A}. The type argument means that the function is polymorphic. It is also marked with the symbol \code{@}, which means it's an \textit{implicit} argument, i.e. when calling the function it can be omitted and will get automatically inferred. The body of the function is simple: we pattern match on the argument \code{l1}. If it's \code{nil}, we return \code{l2}. If it's of the form \code{cons h t}, the result's head is \code{h} and its tail is computed by the recursive call \code{app t l2}.
 
-\begin{example}{Conservation of money}
+In lines 10-12 we define another function, called \code{map}, which applies a function \code{f} to every element of a list. This time, however, we used an abbreviated syntax. The two type arguments \code{@A} and \code{@B} are marked as implicit, but we don't write \code{:\ Type}, which gets inferred automatically. The argument \code{f} and its type are written out in full. The last argument, of type \code{List A}, and the result type \code{List B}, appear after the last \code{:} as the type \code{List A -> List B}. Because of this, it is understood that in the next, pattern matching on the input of type \code{List A} follows.
+
+\textbf{Quantitative typing}. The standard features of purely functional programming is not everything that Axi has to offer. The killer feature, as far as the programming layer is concerned, are quantitative types, which allow the type system to enforce correct resource usage discipline. This aspect of Axi's type system was inspired by linear logic and its cousin, quantitative type theory, and is an improvement upon an analogous feature of the type system of Move, the programming language of the Sui and Aptos blockchains.
+
+In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with too many or too few uses resulting in a type error. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe send the NFT to the transaction's originator, maybe trade it for something else and handle that something else properly according to its quantity, or maybe send it to somebody as a gift. What the program cannot do in such a situation is forget the NFT and do nothing with it, effectively making it ``lost'' in the guts of the chain. It also cannot copy the NFT and have two instead of just the original one.
+
+To make the programmers' lives easier, every type is also assigned its ``default'' quantity. Every variable will be assigned the default quantity of its type unless the programmer decides otherwise. An important piece of terminology: a type whose default quantity is unrestricted is called a \textit{data type}, whereas a type whose default quantity is either one, at least one or at most one, is called a \textit{resource type}. There are no types whose default quantity is zero. Elements of data types are called data, whereas elements of resource types are called resources.
+
+\begin{example}{Quantitative typing}
 
 \lstinputlisting{CopyDrop.axi}
 
 \end{example}
 
+The above example demonstrates the kind of resource discipline enforced by the type system. We will define the type \code{ExampleCoin} and  the function \code{coinMerge} in the next example. For now it only matters that \code{ExampleCoin} is a resource type, i.e. \code{ExampleCoin\ :\ Type1}.
+
+First we try to define a function called \code{coinForgery}. It takes an argument of type \code{ExampleCoin} called \code{x} and returns an \code{ExampleCoin} by calling the function \code{coinMerge} with boths its arguments being \code{x}. Now, \code{ExampleCoin} is a linear type, i.e. by default variables of this type must be used exactly once. Because \code{x} is of type \code{ExampleCoin} and nothing indicates otherwise, this means that the function \code{coinForgery} must use \code{x} exactly once. However, it uses it twice when calling \code{coinMerge}, which is a type error.
+
+This error is caught by the type checker, which complains that \code{x} was used too many times. The error message also hints at some possible solutions: use \code{x} less (the only solution for ordinary programmers) or redefine the type \code{ExampleCoin} to allow duplicate uses (this solution is only available to the type's implementer). The fact that the type system was able to catch this error is crucial, because if the function \code{coinForgery} passed the type checker, it would allow programmers to create unbounded amounts of \code{ExampleCoin}, causing hyperinflation, which most likely was not the intention of this type's creator.
+
+The second function, called \code{coinBlackhole}, takes an argument \code{x} of type \code{ExampleCoin} and returns a value of type \code{Unit}, which is a type with only one element \code{()}. The \code{Unit} type is returned to indicate that the function's result ``doesn't matter''. Because the type of \code{x} is linear, \code{coinBlackhole} must use \code{x} exactly once. However, it doesn't use it at all, which is a type error.
+
+This error is caught by the type checker, which complains that \code{x} was not used. Similarly to the previous error message, two solutions are offered: use \code{x} or make the type \code{ExampleCoin} affine so that it allows zero or one usages. The fact that this error was caught by the type system is very important, because \code{ExampleCoin}'s creator did not intend for values of this type to be deletable.
+
+\textbf{Traits}. A trait is a way of representing an interface satisfied by a type. The definition of a trait consists of a bunch of declarations of constants and functions. The programmer can make a type an \textit{instance} of a trait by implementing the trait's constants and functions for this type.
+
+\begin{example}{Coin trait}
+
+\lstinputlisting{Trait.axi}
+
+\end{example}
+
+The above example shows the definition of the \code{Coin} trait, which could be one way of capturing the commonalities of user-defined coins. Then we implement the type type \code{ExampleCoin} from the previous example and demonstrate how to make it an instance of the \code{Coin} trait.
+
+In lines 1-5 we define the trait \code{Coin}. It takes a parameter \code{A:\ Type1}
 \subsubsection{The Logic Layer}
 
 Axi's logic layer consists of typed classical higher-order logic with equality whose domains of discourse are the types from the programming layer. This means the logic consists of:
@@ -143,7 +174,6 @@ Axi's logic layer consists of typed classical higher-order logic with equality w
   \item \textbf{Quantification over terms and types}. Axi supports universal and existential quantification. We can quantify over terms of a given type ($\forall x : A, \dots$) as well as over types themselves ($\forall A : \texttt{Type}, \dots$), no matter whether we're dealing with data, resources or programs.
   \item \textbf{Higher-order quantification}. We can also quantify over logical entities like propositions ($\forall P : \texttt{Prop}, \dots$), predicates ($\forall P : A \rightarrow \texttt{Prop}, \dots$), relations ($\forall R : A \rightarrow A \rightarrow \texttt{Prop}, \dots$), logical connectives ($\forall C : \texttt{Prop} \rightarrow \texttt{Prop} \rightarrow \texttt{Prop}, \dots$) or even quantifiers themselves ($\forall Q : (A \rightarrow \texttt{Prop}) \rightarrow \texttt{Prop}, \dots$). This ability of logic to talk not only about the underlying programming language, but also about itself, gives it great expressive power and allows it to make use of all of mathematics when reasoning about the behaviour of programs.
   \item \textbf{Equality}. The built-in equality relation ($=$) makes it possible to precisely reason about programs' input-output behaviour.
-  %\item \textbf{Classical principles}. Unlike many other type-theoretical systems, we allow proof by contradiction, which entails all the other classical propositional principles, like the Law of Excluded Middle and Double Negation Elimination. Because the logic is classical, it will be intimately familiar to all mathematicians.
 \end{itemize}
 
 Proving is carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic - instead of being primitives, negation ($\sim P$) is a shorthand for an implication into falsehood ($P \implies \bot$), whereas biconditional ($P \iff Q$) is a shorthand for a conjunction of two implications ($(P \implies Q) \land (Q \implies P)$). The principle of \textit{proof by contradiction}, which allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$, makes the logic classical and thus intimately familiar to all mathematicians.
@@ -152,27 +182,25 @@ One novel feature that distinguishes our proof language is that the proofs can b
 
 Equality is handled as in Martin-Löf Type Theory - proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, Axi provides a convenient feature called \textit{chaining}, which allows reasoning with long chains of equations by writing down and justifying each step separately, similarly to how equality is usually handled with pen and paper. Besides equality, this feature also supports implications, biconditionals and other transitive relations.
 
-%The Axiom of Choice works as follows: while writing a program for the purpose of using it in a proof, we are allowed make use of a new primitive, \texttt{choose}, which turns a proof of $\exists x : A, P\ x$ into an element of type $A$. These programs that make use of the Axiom of Choice are not part of Axi's programming layer and cannot be run, but since their sole purpose is to be used as part of a proof, this does not pose any problems. Axi's handling of the Axiom of Choice might seem strange to mathematicians at first glance, but this presentation makes it convenient to use in practice together with the rest of the proof language. This approach to the Axiom of Choice was inspired by the Lean proof assistant.
-
 \begin{example}{A simple proof}
 
 \lstinputlisting{SimpleProof.axi}
 
 \end{example}
 
-\subsubsection{Rich interfaces}
+\subsubsection{Rich traits}
 
-Last but not least, the killer feature of the logic layer are \textit{rich interfaces}. These are the same interfaces from the programming layer that we already mentioned. However, what we did not mention yet is that in addition to declarations of constants and functions, they may also contain specifications, i.e. properties expected to be true of the declared constants and functions. When implementing such an interface, besides defining the constants and functions, we must also provide proofs of the specifications.
+Last but not least, the killer feature of the logic layer are \textit{rich traits}. These are the same traits from the programming layer that we already mentioned. However, what we did not mention yet is that in addition to declarations of constants and functions, they may also contain specifications, i.e. properties expected to be true of the declared constants and functions. When implementing such a trait, besides defining the constants and functions, we must also provide proofs of the specifications.
 
-Rich interfaces let us precisely define what is expected of various pieces of the blockchain infrastructure. For example, we could define an interface of a DEX, with functions like placing orders, canceling orders and collecting tokens from filled orders, and specify these using properties like ``all orders that are not filled can be canceled'', ``the user can recover his money after canceling an order'', etc.
+Rich traits let us precisely define what is expected of various pieces of the blockchain infrastructure. For example, we could define a trait of a DEX, with functions like placing orders, canceling orders and collecting tokens from filled orders, and specify these using properties like ``all orders that are not filled can be canceled'', ``the user can recover his money after canceling an order'', etc.
 
-Any smart contract that attempts or pretends to implement a DEX would become much more credible and trustworthy if it implemented this DEX interface. This is because the interface is a relatively short and readable way of making promises and guarantees regarding the service's behaviour -- instead of having to read plenty of code, which moreover might be difficult to understand, the user only needs to search the code for a phrase like ``implements the DEX interface'' and read a few short logical specifications. Even though the latter task is still outside of most people's capabilities, it is vastly simpler than having to do your own audit of the code.
+Any smart contract that attempts or pretends to implement a DEX would become much more credible and trustworthy if it implemented this DEX trait. This is because the trait is a relatively short and readable way of making promises and guarantees regarding the service's behaviour -- instead of having to read plenty of code, which moreover might be difficult to understand, the user only needs to search the code for a phrase like ``implements the DEX trait'' and read a few short logical specifications. Even though the latter task is still outside of most people's capabilities, it is vastly simpler than having to do your own audit of the code.
 
-Moreover, this task can be offloaded to \textit{social learning}, i.e. after some time it might become common knowledge, a good practice, etc., that any purported DEX should implement the DEX interface. In such a scenario, the due diligence is reduced to just looking for the phrase ``implements the DEX interface'' in source code, which is in most people's reach.
+Moreover, this task can be offloaded to \textit{social learning}, i.e. after some time it might become common knowledge, a good practice, etc., that any purported DEX should implement the DEX trait. In such a scenario, the due diligence is reduced to just looking for the phrase ``implements the DEX trait'' in source code, which is in most people's reach.
 
-\begin{example}{Coin interface}
+\begin{example}{Coin concept}
 
-\lstinputlisting{RichInterface.axi}
+\lstinputlisting{Concept.axi}
 
 \end{example}
 
@@ -199,8 +227,6 @@ The state of the ledger is modified by transactions. Every transaction has a \te
 \lstinputlisting{Primitives.axi}
 
 \end{example}
-
-\newcommand{\code}[1]{{\small \texttt{#1}}}
 
 The above code listing shows the most important primitives (built-ins) available in Axi. \code{Address} is the data type of addresses, including accounts. \code{Ledger} is an abstract type that represents (the current state of) the ledger. The body of a transaction is a function of type \code{Ledger -> Ledger}.
 
@@ -259,14 +285,3 @@ The most important part of the lifecycle, in which most resources will spend alm
 \end{appendices}
 
 \end{document}
-
-%\begin{figure}[tp!]
-%  \begin{mathpar}
-%    \inferrule*[right=fun]
-%    {\Gamma, x \vdash e \\ x \notin \Gamma}
-%    {\Gamma \vdash \Fun{x}{e}}
-
-%  \end{mathpar}
-%  \caption{Something something.}
-%  \label{fig:wf}
-%\end{figure}

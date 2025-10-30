@@ -1,12 +1,9 @@
-interface Coin (A : Type1) where
-  coinAmount : A -> Nat * A
-  coinZero : A
-  coinMerge : A -> A -> A
-  coinSplit : CoinAmount -> A -> Option A * A
+concept LawfulCoin (A : Type1) extends Coin A where
   theorem coinZero-spec :
     let x = coinZero in
     let (a, _) = coinAmount x in
     a === 0
+
   theorem coinMerge-spec :
     forall @(x : A) @(y : A),
     let (a, _) = coinAmount x in
@@ -14,6 +11,7 @@ interface Coin (A : Type1) where
     let z = coinMerge x y in
     let (c, _) = coinAmount z in
     c === a + b
+
   theorem coinSplit-spec :
     forall @(n : Nat) @(coin : A),
     let (a, _) = coinAmount coin in
@@ -29,23 +27,7 @@ interface Coin (A : Type1) where
       let (c, _) = coinAmount z in
       c === a - n
 
-record type KhalaniCoin : Type1 where
-  amount : Nat
-
-instance Coin KhalaniCoin where
-  coinAmount (coin : KhalaniCoin) : Nat * KhalaniCoin =
-    (coin.amount, coin)
-  coinZero = record where amount = 0
-  coinMerge (coin1 coin2 : KhalaniCoin) : KhalaniCoin =
-    record where amount = coin1.amount + coin2.amount
-  coinSplit (amount : Nat) (coin : KhalaniCoin) :
-      Option KhalaniCoin * KhalaniCoin =
-    if amount <= coin.amount then
-      ( some (record where amount = amount)
-      , record where amount = coin.amount - amount
-      )
-    else
-      (none, coin)
+instance LawfulCoin ExampleCoin where
   theorem coinZero-spec :
     let x = coinZero in
     let (a, _) = coinAmount x in
@@ -53,4 +35,4 @@ instance Coin KhalaniCoin where
   proof
     refl
   qed
-  // other proofs elided
+  // Other proofs elided.

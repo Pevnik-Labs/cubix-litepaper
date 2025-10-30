@@ -1,7 +1,12 @@
-data type List (A : Type) : Type where
-  nil : List A
-  cons : A -> List A -> List A
+data List (A : Type) : Type where
+  nil
+  cons (h : A) (t : List A)
 
-app : forall (A : Type), List A -> List A -> List A
-| nil, ys => ys
-| cons x xs, ys => cons x (app xs ys)
+app @(A : Type) (l1 l2 : List A) : List A =
+  match l1 with
+  | nil      => l2
+  | cons h t => cons h (app t l2)
+
+map @A @B (f : A -> B) : List A -> List B
+| nil      => nil
+| cons h t => cons (f h) (map f t)
