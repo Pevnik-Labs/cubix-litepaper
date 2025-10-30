@@ -6,9 +6,7 @@ proof
   induction l1 with
   | nil =>
     pick-any l2 l3
-    chaining
-      === app (app nil l2) l3
-      === app nil (app l2 l3)
+    refl
   | cons h (t & ind IH) =>
     pick-any l2 l3
     chaining

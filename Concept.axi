@@ -1,38 +1,55 @@
 concept LawfulCoin (A : Type1) extends Coin A where
+  coinAmount' (x : A) : Nat =
+    let (n, _) = coinAmount c in n
+
   theorem coinZero-spec :
-    let x = coinZero in
-    let (a, _) = coinAmount x in
-    a === 0
+    coinAmount coinZero === (0, coinZero)
+
+  theorem coinAmount-spec :
+    forall @(x : A),
+      let (_, y) = coinAmount x in x === y
 
   theorem coinMerge-spec :
-    forall @(x : A) @(y : A),
-    let (a, _) = coinAmount x in
-    let (b, _) = coinAmount y in
-    let z = coinMerge x y in
-    let (c, _) = coinAmount z in
-    c === a + b
+    forall @(x y : A),
+      coinAmount' (coinMerge x y)
+        ===
+      coinAmount' x + coinAmount' y
 
   theorem coinSplit-spec :
     forall @(n : Nat) @(coin : A),
-    let (a, _) = coinAmount coin in
-    match coinSplit n coin with
-    | (none, whole) =>
-      (n <= a) === false /\
-      let (b, _) = coinAmount whole in
-      b === a
-    | (some exact, change) =>
-      (n <= m) === true /\
-      let (b, _) = coinAmount y in
-      b === n /\
-      let (c, _) = coinAmount z in
-      c === a - n
+      match coinSplit n coin with
+      | (none, whole) =>
+          (n <= a) === false /\ whole === coin
+      | (some exact, change) =>
+          (n <= m) === true
+            /\
+          coinAmount' exact === n
+            /\
+          coinAmount' change === coinAmount' coin - n
 
 instance LawfulCoin ExampleCoin where
   theorem coinZero-spec :
-    let x = coinZero in
-    let (a, _) = coinAmount x in
-    a === 0
+    coinAmount coinZero === (0, coinZero)
   proof
     refl
   qed
-  // Other proofs elided.
+
+  theorem coinAmount-spec :
+    forall @(x : ExampleCoin),
+      let (_, y) = coinAmount x in x === y
+  proof
+    pick-any x
+    refl
+  qed
+
+  theorem coinMerge-spec :
+    forall @(x y : ExampleCoin),
+      coinAmount' (coinMerge x y)
+        ===
+      coinAmount' x + coinAmount' y
+  proof
+    pick-any x y
+    refl
+  qed
+
+  // The proof of coinSplit-spec was elided, because it's harder :)

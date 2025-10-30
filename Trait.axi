@@ -8,20 +8,23 @@ record ExampleCoin : Type1 where
   amount : Nat
 
 instance Coin ExampleCoin where
-  coinAmount (c : ExampleCoin) : Nat * ExampleCoin =
-    (c.amount, c)
-
-  coinZero = record where amount = 0
+  coinZero : ExampleCoin =
+    record where amount = 0
 
   coinMerge (c1 c2 : ExampleCoin) : ExampleCoin =
     record where amount = c1.amount + c2.amount
 
-  coinSplit (amount : Nat) (c : ExampleCoin) :
-      Option ExampleCoin * ExampleCoin =
-    if amount <= c.amount
-    then
-      ( some (record where amount = amount)
-      , record where amount = c.amount - amount
-      )
-    else
-      (none, c)
+  coinAmount (c : ExampleCoin) : Nat * ExampleCoin =
+    let n : Nat = c.amount in
+      (n, record where amount = n)
+
+  coinSplit (askedAmount : Nat) (c : ExampleCoin) :
+    Option ExampleCoin * ExampleCoin =
+      let n : Nat = c.amount in
+        if askedAmount <= n
+        then
+          ( some (record where amount = askedAmount),
+          , record where amount = n - askedAmount)
+          )
+        else
+          (none, record where amount = n)
