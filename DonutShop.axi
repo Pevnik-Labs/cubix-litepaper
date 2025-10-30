@@ -5,10 +5,10 @@ module DonutShop where
 // since the types are mentioned in the signatures
 // the types will be public but opaque
 export
-  myShop
   init
   buyDonut
   collectProfits
+  getMyShopRef
 
 // Donut - simple purchasable object, can be used at most once
 record type Donut : Type? where
@@ -21,8 +21,8 @@ record type DonutShop : Type1 where
   balance : KhalaniCoin
   nextSerialNumber : Nat
 
-record type DonutShopOwnershipToken : Type where
-  myShop : Ref DonutShop
+record type DonutShopOwnershipToken : Type1 where
+  myShopRef : Ref DonutShop
 
 // Create a donut shop
 init (ledger : Ledger)
@@ -30,7 +30,7 @@ init (ledger : Ledger)
 = let (shopRef, shopToLedger) = share ledger in
   let ownership : DonutShopOwnershipToken =
     record where
-      myShop = shopRef in
+      myShopRef = shopRef in
   let shop : DonutShop = record where
     thisShop = addressof shopRef
     price = 1000
@@ -63,3 +63,8 @@ collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
     (profits, newShop, ledger)
   else
     (coinZero, shop, ledger)
+
+// Reads shop reference from an ownership token
+getMyShopRef (ownership : DonutShopOwnershipToken)
+: DonutShop * DonutShopOwnershipToken
+= (token.myShopRef, token)
