@@ -1,70 +1,75 @@
 module DonutShop where
 
-// exporting the types would allow public access
-// to constructors and record updates
-// since the types are mentioned in the signatures
-// the types will be public but opaque
+// Exporting the types would allow public access
+// to constructors and record updates which we don't want.
+// Since the types are mentioned in the signatures
+// they will be public but opaque.
 export
   init
   buyDonut
   collectProfits
   getMyShopRef
 
-// Donut - simple purchasable object, can be used at most once
-record type Donut : Type? where
+// Donut - a simple purchasable object. It can be used at most once.
+record Donut : Type? where
   serialNumber : Nat
 
-// Donut shop - shared object
-record type DonutShop : Type1 where
+// Donut shop - it knows its address, donut price,
+// the amount of money it earned so far, and the
+// serial number of the next donut to be sold.
+record DonutShop : Type1 where
   thisShop : Address
+  balance : ExampleCoin
   price : Nat
-  balance : KhalaniCoin
   nextSerialNumber : Nat
 
-record type DonutShopOwnershipToken : Type1 where
+// A token which allows the owner to collect profits from his shop.
+record DonutShopOwnershipToken : Type1 where
   myShopRef : Ref DonutShop
 
-// Create a donut shop
-init (ledger : Ledger)
-: DonutShopOwnershipToken * Ledger
-= let (shopRef, shopToLedger) = share ledger in
-  let ownership : DonutShopOwnershipToken =
-    record where
-      myShopRef = shopRef in
-  let shop : DonutShop = record where
-    thisShop = addressof shopRef
-    price = 1000
-    balance = coinZero
-    nextSerialNumber = 0 in
-  (ownership, shopRef, shopToLedger shop)
+// Create a new donut shop, with donut price set to `myPrice`.
+init (myPrice : Nat) (ledger : Ledger)
+  : DonutShopOwnershipToken * Ledger =
+  let
+    (shopRef, publishShopToLedger) = share DonutShop ledger
+    ownership : DonutShopOwnershipToken =
+      record where myShopRef = shopRef
+    newShop : DonutShop = record where
+      thisShop = addressOf shopRef
+      price = myPrice
+      balance = coinZero
+      nextSerialNumber = 0
+  in
+    (ownership, publishShopToLedger newShop)
 
-// One can buy a donut for a set price
-buyDonut (payment : KhalaniCoin) (shop : DonutShop)
-: Option Donut * KhalaniCoin * DonutShop
-= let (splitResult, change) = coinSplit shop.price payment in
+// Buy a donut from the shop. The outputs are: the donut
+// (if successfully bought), the change and the updated shop.
+buyDonut (payment : ExampleCoin) (shop : DonutShop)
+  : Option Donut * ExampleCoin * DonutShop =
+  let (splitResult, change) = coinSplit shop.price payment in
   match splitResult with
   | none => (none, change, shop)
   | some paid =>
-    let newBalance = coinMerge shop.balance paid in
-    let newSerialNumber = shop.nextSerialNumber in
-    let newShop : DonutShop =
-      record shop where
+    let
+      num : Nat = shop.nextSerialNumber
+      donut : Donut = record where serialNumber = num
+      newBalance = coinMerge shop.balance paid
+      newShop : DonutShop = record shop where
         balance = newBalance
-        nextSerialNumber = newSerialNumber + 1 in
-    let donut : Donut = record where serialNumber = newSerialNumber in
-    (some donut, change, newShop)
+        nextSerialNumber = num + 1
+    in
+      (some donut, change, newShop)
 
-// Collects profits from shop (succeeds only for owner)
+// Collect profits from the shop (succeeds only for the owner).
 collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
-: KhalaniCoin * DonutShop
-= if addressof ownership.myShop == shop.thisShop then
-    let profits = shop.balance in
-    let newShop = record shop where balance = coinZero in
-    (profits, newShop, ledger)
+  : ExampleCoin * DonutShop * DonutShopOwnershipToken =
+  let shopRef = ownership.myShopRef in
+  if addressOf shopRef == shop.thisShop
+  then
+    let
+      profits = shop.balance
+      newShop = record shop where balance = coinZero
+    in
+      (profits, newShop, ownership)
   else
-    (coinZero, shop, ledger)
-
-// Reads shop reference from an ownership token
-getMyShopRef (ownership : DonutShopOwnershipToken)
-: DonutShop * DonutShopOwnershipToken
-= (token.myShopRef, token)
+    (coinZero, shop, ownership)

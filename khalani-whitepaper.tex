@@ -715,7 +715,7 @@ In this appendix we will have a brief, not too technical look at the philosophy 
 
 Axi's architecture is unique in that the language is split into two strictly separate layers: the programming layer and the logic layer.
 
-\textbf{The Programming Layer} of Axi is a purely functional language based on System F with quantitative typing (linear, affine, relevant and unrestricted types) and algebraic data types. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
+\textbf{The Programming Layer} of Axi is a purely functional language based on System $F_{\omega}$ with quantitative typing (linear, affine, relevant and unrestricted types) and algebraic data types. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
 
 \begin{itemize}
   \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash (unless they run out of gas), can't perform nonsensical operations like adding a number and a string, and can't result in any other runtime type error.
@@ -812,7 +812,7 @@ This error is caught by the type checker, which complains that \code{x} was not 
 
 The above example shows the definition of the \code{Coin} trait, which could be one way of capturing the commonalities of user-defined coins. Then we implement the type type \code{ExampleCoin} from the previous example and demonstrate how to make it an instance of the \code{Coin} trait.
 
-In lines 1-5 we define the trait \code{Coin}. It takes a parameter \code{A :\ Type1}, i.e. this trait can only be implemented by resource types. The trait has one constant and three functions. \code{coinZero} represents a coin with denomination zero. \code{coinMerge} merges two coins. \code{coinSplit} splits one coin into two according to the amount given in its first argument, with the possibility of failure (if the amount asked is too big) indicated by \code{Option} in the return type. \code{coinAmount} is perhaps the most mysterious -- it returns the denomination of the coin, but also a new coin. This is a pattern that we will see many times to come. If \code{coinAmount} returned just the amount, that would destroy the coin, because it must be used exactly once (because its type is linear), and checking the amount counts as a single use! Therefore, \code{coinAmount} must not only return the amount, but also a `\code{new'' coin, which we expect to be the same as the }`old'' coin (but this is not guaranteed; later we will see how to guarantee this fact using logic).
+In lines 1-5 we define the trait \code{Coin}. It takes a parameter \code{A :\ Type1}, i.e. this trait can only be implemented by resource types. The trait has one constant and three functions. \code{coinZero} represents a coin with denomination zero. \code{coinMerge} merges two coins. \code{coinSplit} splits one coin into two according to the amount given in its first argument, with the possibility of failure (if the amount asked is too big) indicated by \code{Option} in the return type. \code{coinAmount} is perhaps the most mysterious -- it returns the denomination of the coin, but also a new coin. This is a pattern that we will see many times to come. If \code{coinAmount} returned just the amount, that would destroy the coin, because it must be used exactly once (because its type is linear), and checking the amount counts as a single use! Therefore, \code{coinAmount} must not only return the amount, but also a ``new'' coin, which we expect to be the same as the ``old'' coin (but this is not guaranteed; later we will see how to guarantee this fact using logic).
 
 In lines 7-8 we implement the type \code{ExampleCoin}. It is a record type with a single field \code{amount} which is a natural number (i.e. a non-negative number which can be arbitrarily large). \code{ExampleCoin} is a resource type, as marked with the annotation \code{:\ Type1}.
 
@@ -868,47 +868,21 @@ The above example shows how to implement \code{LawfulCoin} for the type \code{Ex
 
 \section{Interacting with the ledger in Axi}
 
-In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we will discuss a simplified ledger model, which we will use in the remaining code examples, and look at the primitive (buil-in) types and functions that represent it in Axi. Then we will give an overview of the big idea behind Axi's interaction with the ledger, which we might call the ``resource lifecycle''. Finally we will discuss a slightly longer example of an on-chain service, together with example transactions that set this service up and use it.
+In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we will discuss a simplified ledger model, which we will use in the remaining code examples, and look at the primitive (built-in) types and functions that represent it in Axi. Then we will give an overview of Axi's interaction with the ledger, focusing on the ``lifecycle'' of resources. Finally we will discuss a slightly longer example of an on-chain service, together with example transactions that set this service up and use it.
 
-\subsection{A simplified ledger model and Axi primitives}
+\subsection{A simplified ledger model}
 
 We will use the word \textit{ledger} to refer to the state of the blockchain. Things on the ledger have their addresses. The three kinds of addresses are \textit{accounts}, \textit{package addresses} and \textit{cell addresses} (or just addresses for short).
 
 Accounts are addresses that act as the identities of external actors. They allow them to interact with the blockchain, similarly to EOAs (Externally Owned Accounts) on Ethereum.
 
-All Axi code deployed onto the ledger is stored in a big codebase, divided into \textit{packages}. Package addresses are means of locating these packages in this codebase. Packages are further subdivided into smaller units, called \textit{modules}, which hold definitions of types, interfaces, constants and functions.
+All Axi code deployed onto the ledger is stored in a big codebase, divided into \textit{packages}. Package addresses are means of locating these packages in this codebase. Packages are further subdivided into smaller units, called \textit{modules}, which hold definitions of types, traits, constants and functions.
 
 Data and resources on the ledger are stored in \textit{cells}, also called \textit{objects}. Each cell has an address and a type, and stores exactly one value of that type. Cells also have some metadata which won't concern us for now.
 
-Objects are either \textit{owned} or \textit{shared}. Owned objects have exactly one owner who is an account. Shared objects do not have an owner. Shared objects are further subdivided into \textit{mutable shared objects}, which contain resources and can be interacted with by anybody (any account or object) according to the interface set by the package defining the object's type, and \textit{immutable shared objects}, which contain data but not resources and can be read by anybody, but not modified.
+Objects are either \textit{owned} or \textit{shared}. Owned objects have exactly one owner who is an account. Shared objects do not have an owner. Shared objects are further subdivided into \textit{mutable shared objects}, which contain resources and can be interacted with by anybody (any account or object) according to the interface set by the package defining the object's type, and \textit{immutable shared objects}, which contain data, but not resources, and can be read by everybody, but cannot be modified by anybody.
 
-The state of the ledger is modified by transactions. Every transaction has a \textit{transaction originator} and a \textit{transaction body}, which is an Axi function that describes how to modify the ledger. Transactions also have some additional metadata which won't concern us here.
-
-\begin{example}{Axi primitives for interacting with the ledger}
-
-\lstinputlisting{Primitives.axi}
-
-\end{example}
-
-The above code listing shows the most important primitives (built-ins) available in Axi. \code{Address} is the data type of addresses, including accounts. \code{Ledger} is an abstract type that represents (the current state of) the ledger. The body of a transaction is a function of type \code{Ledger -> Ledger}.
-
-Every function that interacts with the ledger takes (the current version of) the ledger as input and also returns (the new version of) the ledger as output. In general, the type of such a function is \code{A -> Ledger -> B * Ledger}, i.e. it takes a value of some type \code{A} and the ledger, and returns a value of some type \code{B} and the (updated) ledger.
-
-The transaction body will, in general, be composed of many such functions. It will get the initial input of type \code{Ledger} from the transaction context and then pass it to the first of these functions, which will in turn pass it to the second one, and so on. Because \code{Ledger} is a resource type, the type system guarantees that values of this type cannot be copied or deleted. This means that the ledger is acted upon and then passed further and further until the transaction body returns the final modified version of it.
-
-An example function that needs the ledger is \code{whoami}, which consumes the old ledger and returns the account address that is the originator of the current transaction, together with a new ledger.
-
-\code{new} is a function that takes an account address and a value of some type, together with the ledger, creates a new cell on the ledger that contains this value and belongs to that account, and returns the address of the created cell together with the new ledger.
-
-\code{delete} is a function that takes a cell address, together with the ledger, and returns an optional value of some type \code{A}, together with the new ledger. If the transaction originator is not the owner of the cell, or the value stored in the cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds, the cell is destroyed and the result is \code{some a}, where \code{a} is the value that was stored in this cell.
-
-\code{share} is a function that takes a value of some type \code{A}, together with the ledger, creates a new mutable shared cell that contains this value, and returns the reference to the created cell together wtih the new ledger.
-
-\code{freeze} is a function that takes a value (which must be data and not a resource), together with the ledger, creates a new immutable shared cell that contains this value, and returns the address of the created cell together with the new ledger.
-
-\code{peek} is a function that takes an address, together with the ledger, reads the contants of an immutable shared cell under this address, and returns an optional value of some type \code{A} together with the new ledger. If the address does not point to an immutable shared cell, or the value stored in that cell is not of type \code{A}, then the operation fails and the result is \code{none}. Otherwise the operation succeeds and the result is \code{some a}, where \code{a} is the data stored in the cell.
-
-\code{update} is a function that takes a reference to a shared cell, together with the ledger, and returns a value of some type \code{A} together with a callback that when called with the new value of the cell, returns the new ledger. Note that this callback has a resource type \code{A -> Ledger}, so the type system makes sure that the callback is eventually called once.
+The state of the ledger is modified by transactions. Every transaction has a \textit{transaction originator} and a \textit{transaction body}. There are two types of transactions: \textit{code deploys} and \textit{ordinary transactions}. The body of a code deploy transaction is a package of Axi code. The body of an ordinary transaction is an Axi function that describes how to modify the ledger. Transactions also have some additional metadata which won't concern us here.
 
 \subsection{The resource lifecycle}
 
@@ -917,32 +891,112 @@ A new resource type is created by a transaction that deploys a package of Axi co
 The life cycle of a particular resource, i.e. an element of some resource type, consists of three stages:
 
 \begin{itemize}
-  \item \textbf{Creation}. At some point the resource is created according to the rules set by the package that contains the definition of the resource's type. After creation, the resource is placed on the ledger in a cell owned by somebody.
-  \item \textbf{Transaction(s)}. The resource might participate in transactions, if its owner wishes so. The owner might transfer his ownership of the resource freely, whereas programmatic interaction of the resource with other objects happens only according to the rules set by the defining package.
+  \item \textbf{Creation}. At some point the resource is created, in accordance with the interface of the package that contains the definition of the resource's type. After creation, the resource is placed on the ledger in a cell owned by somebody.
+  \item \textbf{Transaction(s)}. The resource might participate in transactions, if its owner wishes so. The owner might transfer his ownership of the resource freely, whereas programmatic interaction of the resource with other objects happens only in accordance with the interface of the resource types' defining package.
   \item \textbf{Destruction (optional)}. If the defining package permits it, the resource might at some point be destroyed. Examples of destructible resources are stablecoins that are backed by an off-chain reserve, where a coin gets destroyed when its off-chain collateral is removed from the treasury, and a wrapper for an asset bridged from another blockchain, which gets destroyed when the external asset ceases to be bridged.
 \end{itemize}
 
-The most important part of the lifecycle, in which most resources will spend almost all their life, is the phase when they can participate in transactions. An ordinary transaction (i.e. one which does not deploy a new package) consists of an arbitrary Axi program that transforms the state of the ledger, which we'll call the \textit{transaction body}, and of some metadata, most importantly the \textit{transaction originator}. This program, when executed, interacts with the ledger in three steps:
+The most important part of the lifecycle, in which most resources will spend almost all their life, is the phase when they can participate in transactions. An (ordinary) transaction consists of an arbitrary Axi program that transforms the state of the ledger. This program, when executed, interacts with the ledger in three steps:
 
 \begin{itemize}
   \item \textbf{Withdraw}. First, resources are ``withdrawn'' from the ledger into the program. The ledger's ownership model ensures the safety of this step, for example by making sure that the program cannot withdraw resources that don't belong to the transaction originator.
-  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system keeps an eye on them, nonsensical operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on.
-  \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the ledger. The safety of this step is partially ensured by the type system, which checks that all resources held by the program are deposited back. However, since resources can be freely transferred, it's up to the transaction author to make sure that they are transferred to the correct address and not to somebody else.
+  \item \textbf{Transform}. Second, the program transforms its resources by performing various computations, exchanging the resources for other resources and moving them around, etc. The safety of this step is guaranteed by the type system. The resources cannot get unlawfully destroyed or copied because the type system tracks usage, nonsensical operations cannot be performed on them, because the program is well-typed, they cannot get lost in the jungle of pattern matching, because exhaustiveness is checked, and so on.
+  \item \textbf{Deposit}. Third, the program ``deposits'' the transformed resources back onto the ledger. The safety of this step is partially ensured by the type system, which checks that all resources held by the program are deposited back. However, since resources can be freely transferred, it's up to the transaction originator to make sure that they are transferred to the correct address and not to somebody else.
 \end{itemize}
 
-\subsection{A longer example}
+TODO
+
+\subsection{Ledger primitives}
+
+In this section we will see how Khalani's ledger looks like from Axi's perspective. To do this, we will discuss the primitive (i.e. built-in) types and functions that Axi programs use to interact with the ledger.
+
+\begin{example}{Axi primitives for interacting with the ledger}
+
+\lstinputlisting{Primitives.axi}
+
+\end{example}
+
+The above code listing shows the most important Axi primitives for dealing with the ledger. \code{Address} is the data type of addresses, including both accounts and cell addresses. \code{Ledger} is the type that represents (the current state of) the ledger. When we said that the body of an ordinary transaction is an ``arbitrary Axi program that transforms the ledger'', we meant precisely that it is a function of type \code{Ledger -> Ledger}.
+
+Every function that interacts with the ledger takes (the current version of) the ledger as input and also returns (the new version of) the ledger as output. In general, the type of such a function is \code{A -> Ledger -> B * Ledger}, i.e. it takes a value of some type \code{A} and the ledger, and returns a value of some type \code{B} and the (updated) ledger.
+
+The transaction body will, in general, be composed of many such functions. It will get the initial input of type \code{Ledger} from the transaction context and then pass it to the first of these functions, which will in turn pass it to the next one, and so on. Because \code{Ledger} is a linear type, the type system guarantees that values of this type must be used exactly once and cannot be copied nor deleted. This means that the ledger is acted upon and then passed further and further until the transaction body returns the final modified version of it.
+
+An example function that needs the ledger is \code{whoami}, which consumes the old ledger and returns the account address that is the originator of the current transaction, together with a new ledger.
+
+\code{new} is a function that takes a type \code{A} (note that the symbol \code{@} marks that this type argument must be specified manually) and an account address, together with the ledger, creates a new cell on the ledger, and returns the address of the created cell together with function of type \code{A -> Ledger}. This function is a ``setter'' for the cell -- when it is given a value of type \code{A}, it sets the cell contents to this value and then returns the new ledger. Note that the type \code{A -> Ledger} is linear, so the type system makes sure that it is called exactly once. Because of this, the cell can't be left empty, as well as it cannot be overwritten right after being created. This is a pattern that we will also see when creating and updating the shared cells.
+
+\code{delete} is a function that takes a type \code{A} and a cell address, together with the ledger, and returns an optional \code{A}, together with the new ledger. If the transaction originator is not the owner of the cell, or the value stored in the cell is not of type \code{A}, then the operation fails and the result is \code{none} (together with the new ledger). Otherwise the operation succeeds, the cell is destroyed and the result is \code{some a} (together with the new ledger), where \code{a} is the value that was stored in this cell.
+
+\code{Ref} is a type constructor that turns resource types into data types that represent ``references'' to cells that contain this type of resource. The problem we want to solve is that, when interacting with shared cells, we don't know whether a shared cell with the given address exists, so we would need to check that first and handle the possible errors, but doing that over and over would be tedious. As a solution, we perform a kind of ``handshake'' with the cell using the function \code{referenceOf} which, if a cell with the given address exists, return a reference to it. In practice, \code{Ref A} is just a wrapper around an \code{Address} that points to a cell that holds a value of type \code{A}. The function \code{addressOf} returns the address when given the reference. The function \code{referenceOf}, when given an address, together with the ledger, returns an optional reference, together with the ledger. If such a cell doesn't exist, the result is \code{none} (together with the new ledger). If it does, the result is \code{some ref} (together with the new ledger), where \code{ref} is the reference to the cell.
+
+\code{share} is a function that takes a type \code{A}, together with the ledger, creates a new mutable shared cell, and returns the reference to the created cell, together with a setter function that, when given a value of type \code{A}, sets the cell's contents to this value and returns the new ledger.
+
+\code{update} is a function that takes a reference to a mutable shared cell, together with the ledger, and returns a value of some type \code{A} together with a setter function that, when given a value of type \code{A}, sets the cell's contents to this value and returns the new ledger.
+
+\code{freeze} is a function that takes a value (which must be data and not a resource), together with the ledger, creates a new immutable shared cell that contains this value, and returns the address of the created cell, together with the new ledger.
+
+\code{peek} is a function that takes a type \code{A} and an address, together with the ledger, reads the contants of an immutable shared cell under this address, and returns an optional \code{A}, together with the new ledger. If the address does not point to an immutable shared cell, or the value stored in that cell is not of type \code{A}, then the operation fails and the result is \code{none} (together with the new ledger). Otherwise the operation succeeds and the result is \code{some a} (together with the new ledger), where \code{a} is the data stored in the cell.
+
+\subsection{A longer example -- donut shop}
+
+%How do the primitives work in practice? How do they relate to the ``resource lifecycle'' mentioned earlier?
+
+In this section, we will see a longer example that demonstrates a simple on-chain service -- the donut shop. This example was inspired by a similar example from the \href{https://docs.sui.io/concepts/object-ownership/shared}{Sui documentation}.
 
 \begin{example}{Donut Shop}
 
 \lstinputlisting{DonutShop.axi}
 
+\end{example}
+
+The above listing shows the code of the module \code{DonutShop}. This module provides functions for creating, managing and interacting with donut shops, which will live on-chain as \textit{services}. We use the name service to refer to a mutable shared cell which stores a value whose type is abstract, i.e. whose definition is not exported by the module that defines it. Because of this, the only way to interact with a service is to get it from the ledger, call some of its methods (i.e. functions from the module which defines it) and then put it back onto the ledger.
+
+When the code above gets deployed onto the chain, the resulting package will effectively become a public shared library that everybody can use in their own code. However, to make the examples simpler, we suppress details related to packages and instead pretend that it's the module itself that gets deployed onto the chain.
+
+First, in lines 7-11, we indicate which functions we want the module to export. These functions become the interface of the module through which other code interacts with types from this module. We export all the functions we define, but we don't export the types we define, because we want to keep all of them abstract, so that elements of the \code{DonutShop} type can become on-chain services.
+
+In lines 14-15 we define the \code{Donut} type. Because of the annotation \code{:\ Type?}, \code{Donut} is an affine type, i.e. its elements must be used at most once. Every donut has a serial number -- this guarantees that every shop has an infinite supply of donuts, but otherwise this detail isn't very relevant to the example.
+
+In lines 20-24 we define the \code{DonutShop} type. A shop stores its own on-chain address (so that it can check if the person trying to collect its profit is its owner), its balance (the coins it earned so far from selling donuts), the price of a single donut and the serial number of the next donut it will sell. \code{DonutShop} is a linear type, so every shop must be used exactly once.
+
+In lines 27-28 we define the \code{DonutShopOwnershipToken} type. Such a token contains a reference to the on-chain cell in which the shop lives and acts as a ``key'' which allows the shop's owner (and only him) to withdraw the profits made by the shop. We expect such ownership tokens to become a common programming pattern in Khalani. We will explain how these tokens work later.
+
+In lines 31-43 we define the function \code{init}. It takes a donut price, together with the ledger, sets up a new donut shop on the ledger, and returns its ownership token, together with the new ledger. It works as follows. First, on line 34, we create a new mutable shared cell that will hold the shop. In return we get a reference and a setter. Then in lines 35-36 we define a new ownership token using the reference. Then on lines 37-41 we define a new shop using the reference's address. Finally, on line 43, we return the ownership token, together with the new ledger obtained by calling the setter \code{publishShopToLedger} on the new shop.
+
+In lines 47-61 we define the function \code{buyDonut}. It takes a coin payment and a donut shop, and returns an optional donut (depending on whether the purchase succeeds or not), the change left after paying, and the modified donut shop. It works as follows. First, on line 49, we split the payment coin to see if there's enough of it to pay the donut's price. On line 50 we check if the split succeeded. If not (line 51), we return \code{none}, the change (which is equal to the original payment coin) and the unmodified shop. If the split succeeded (line 52), we create a new donut (line 55), compute the shop's new balance (line 56) and update the shop (lines 57-59) to reflect the new balance and new serial number. Finally, on line 61, we return the donut, the change and the modified shop.
+
+In lines 64-75 we define the function \code{collectProfits}. It takes an ownership token and a shop and returns coins, the new shop and the new token. It works as follows. On lines 66 we extract a shop reference from the token. On line 67 we check if the reference's address is the same as the address of the shop. If yes, in lines 70-71 we withdraw the profits from the shop and update the shop's balance to zero, and then on line 73 we return the profits, the new shop, and the (new) ownership token. If the reference's address is different from the shop's address, the operation is unauthorized, and in such a case on line 75 we return a zero coin, the unmodified shop and the (new) onwership token.
+
+These technical descriptions of the functions' inner workings might sound scary, but in practice things are quite simple. Anybody can call \code{init} to set up a new donut shop. In return he gets an ownership token, which allows collecting the shop's profits and also contains the shop's reference (and thus address), so that he remembers where his shop is located. Anybody can try to buy a donut from any donut shop by calling the \code{buyDonut} function. If the argument contains enough coins, he will get his donut and change. If not, he doesn't get a donut but gets his coins back. In both cases, he can continue his interaction with the shop. Finally, anybody with any donut shop ownership token can try to collect profits from any donut shop. If the token happens to be the correct token for the particular shop, he will get his profits. If not, he gets zero coins. In both cases, he gets his ownership token back and can continue his interaction with the shop.
+
+Now, why does the donut shop ownership token work? Why can't anybody steal the shop's profits? First, the \code{DonutShopOwnershipToken} is abstract, i.e. its definition is not exported by the module, so the only way to create such a token is by calling \code{init}. Second, this type is linear, so that the ownership token cannot be copied or deleted (although it might be sent to a dummy address, becoming effectively lost forever). This ensures that on-chain there always exists a unique ownership token for every donut shop. Because every donut shop stores its own on-chain address, and this address cannot be changed neither by moving the shop on-chain nor by modifying the shop's \code{thisShop} field, the check that the \code{collectProfits} function performs is enough to identify whether the caller is the shop's rightful owner or not. This argument could in principle be turned into a theorem, but we leave this for further work.
+
+Another interesting property of this design is that, although ownership tokens cannot be forged, copied nor deleted, they can be exchanged, bought and sold. This means, for example, that a donut shop's owner could sell his shop for a lump sum, letting the buyer collect the profits over time. Thus, we can see the donut shop ownership token as a very simple kind of stock that can be traded OTC and pays dividends on demand, but all at once (the owner can't withdraw only a part of the profits). These stock-like properties were not explicitly designed by us when we were coming up with this example. Instead, they arose naturally from the ``ownership token'' programming pattern, abstract types and linear typing.
+
+\begin{example}{A transaction that sets up a new donut shop}
+
 \lstinputlisting{DonutShopInit.axi}
 
+\end{example}
+
+The above example shows a transaction that sets up a new donut shop. In lines 1-3, we import the \code{DonutShopOwnershipToken} and the \code{init} function from the \code{DonutShop} module. In lines 5-11 we define the \code{main} function, which describes how the transaction will modify the ledger once it is executed. On line 7 we ask for our own address (so as not to have to paste it manually). On line 8 we call \code{init} to set up a new donut shop in which each donut costs 1000 \code{ExampleCoin}s. In line 9-10 we create a new cell owned by us that will hold the shop's ownership token. Finally, on line 12, we put the token into this cell which returns the final ledger.
+
+\begin{example}{A transaction that buys a donut}
+
 \lstinputlisting{DonutShopBuy.axi}
+
+\end{example}
+
+The above example shows a transaction that buys a donut. In lines 1-4 we import the type \code{DonutShop} and the function \code{buyDonut} from the \code{DonutShop} module. In lines 6-7, we define a constant that holds the address of our cell with coins that we will use to pay for the donut. In lines 9-10 we define a constant that holds the address of the donut shop from which we will buy the donut. In lines 12-25 we define the \code{main} function. On line 14 we ask for our identity and on lines 15 and 17 we check if there indeed is a donut shop under the given address. If not (line 18), then we finish by returning the ledger. If yes, we now have a reference to the shop (line 19). On line 20 we attempt to grab our coins from the cell and on line 21 we check if it succeeded. If not (for example because we made a typo in the address), we finish by returning the ledger (line 22). If yes, we now have the coins (line 23). On line 25 we get hold of the shop. On line 26 we call \code{buyDonut} on the shop, trying to pay with our coins. On line 27 we put the shop back onto its cell. On line 28 we create a new cell to hold the change that was left after paying for the donut. On line 29 we put the change into this cell. On line 31 we check if we bought the donut successfully. If not (for example because we didn't have enough money), then we finish by returning the ledger (line 32). If yes, we now have the donut (line 33). On line 34 we create a new cell owned by us that will hold the donut. On line 35 we put the donut into this cell which returns the final ledger.
+
+\begin{example}{A transaction that tries to collect profits from a donut shop}
 
 \lstinputlisting{DonutShopCollect.axi}
 
 \end{example}
+
+The above example shows a transaction that tries to collect profits from a donut shop. In lines 1-3 we import the necessary types and functions from the module \code{DonutShop}. In lines 5-6 we define a constant that holds the address of our donut shop ownership token. In lines 8-26 we define the \code{main} function. On line 10 we ask our own address. On line 12 we try to pick up our ownership token from the ledger. On line 14 we check if we got the token. If not (for example, because this cell holds something else and not our token), we finish by returning the ledger (line 15). If yes, we now have the ownership token (line 16). On line 18 we extract the shop reference from the token. On line 19 we pick up the shop from the ledger. On line 20 we call \code{collectProfits} on the shop. On line 21 we put the shop back onto the ledger. On line 22 we create a new cell owned by us that will hold the profits. On line 23 we put the profits into this cell. In lines 24-25 we create a new cell owned by us that will hold our token (recall that the old cell was destroyed when we picked up the token). Finally, on line 27 we put the token into this cell which returns the final ledger.
 
 \end{appendices}
 

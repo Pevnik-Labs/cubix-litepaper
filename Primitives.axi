@@ -1,37 +1,39 @@
 primitive
-  // provides access to ledger and transaction metadata
+  // Provides access to the ledger and transaction metadata.
   Ledger : Type1
 
-  // a unique address of a cell or an account
+  // A unique address of a cell or an account.
   Address : Type
 
-  // an address that signed the currently executed transaction
+  // Return the address that signed the currently executed transaction.
   whoami : Ledger -> Address * Ledger
 
-  // create a new cell owned by a specified address
-  new : forall (A : Type1), Address -> Ledger -> Address * (A -> Ledger)
+  // Create a new cell owned by the specified account.
+  new : forall @(A : Type1), Address -> Ledger -> Address * (A -> Ledger)
 
-  // destroy an existing cell owned by transaction signer
+  // Destroy an existing cell owned by the transaction originator
+  // and move the cell's resources into the program.
   delete : forall @(A : Type1), Address -> Ledger -> Option A * Ledger
 
-  // reference to a shared cell
+  // A reference to a shared cell.
   Ref : Type1 -> Type
 
-  // create a new mutable shared cell, accessible by everyone
-  share : forall @(A : Type1), Ledger -> Ref A * (A -> Ledger)
+  // Extract an address from a reference.
+  addressOf : forall (A : Type1), Ref A -> Address
 
-  // load contents of a shared cell and then store a new value
-  update : forall (A : Type1), Ref A -> Ledger -> A * (A -> Ledger)
-
-  // upcast a reference to an address
-  addressof : forall (A : Type1), Ref A -> Address
-
-  // downcast an address to a reference
-  referenceof : forall @(A : Type1),
+  // Try to "shake hands" with the shared cell at the given address
+  // to get a reference to it.
+  referenceOf : forall @(A : Type1),
     Address -> Ledger -> Option (Ref A) * Ledger
 
-  // create a new immutable shared cell, accessible by everyone
+  // Create a new mutable shared cell.
+  share : forall @(A : Type1), Ledger -> Ref A * (A -> Ledger)
+
+  // Load the contents of a shared cell and then store a new value.
+  update : forall (A : Type1), Ref A -> Ledger -> A * (A -> Ledger)
+
+  // Create a new immutable shared cell.
   freeze : forall (A : Type), A -> Ledger -> Address * Ledger
 
-  // read contents of an immutable cell
+  // Read the contents of an immutable shared cell.
   peek : forall @(A : Type), Address -> Ledger -> Option A * Ledger

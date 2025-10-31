@@ -23,8 +23,8 @@ instance Coin ExampleCoin where
       let n : Nat = c.amount in
         if askedAmount <= n
         then
-          ( some (record where amount = askedAmount),
-          , record where amount = n - askedAmount)
+          ( some (record where amount = askedAmount)
+          , record where amount = n - askedAmount
           )
         else
           (none, record where amount = n)
