@@ -2,54 +2,33 @@ concept LawfulCoin (A : Type1) extends Coin A where
   coinAmount' (x : A) : Nat =
     let (n, _) = coinAmount c in n
 
-  theorem coinZero-spec :
-    coinAmount coinZero === (0, coinZero)
-
-  theorem coinAmount-spec :
+  law coinAmount-spec :
     forall @(x : A),
       let (_, y) = coinAmount x in x === y
 
-  theorem coinMerge-spec :
+  law coinZero-spec :
+    coinAmount' coinZero === 0
+
+  law coinMerge-spec :
     forall @(x y : A),
       coinAmount' (coinMerge x y)
         ===
       coinAmount' x + coinAmount' y
 
-  theorem coinSplit-spec :
-    forall @(n : Nat) @(coin : A),
-      match coinSplit n coin with
-      | (none, whole) =>
-          (n <= a) === false /\ whole === coin
-      | (some exact, change) =>
-          (n <= m) === true
-            /\
-          coinAmount' exact === n
-            /\
-          coinAmount' change === coinAmount' coin - n
+  law coinSplit-none :
+    forall @(askedAmount : Nat) @(coin coin' : A),
+      coinSplit askedAmount coin === (none, coin')
+        <-->
+      (askedAmount <= coinAmount' coin) === false
+        /\
+      coin === coin'
 
-instance LawfulCoin ExampleCoin where
-  theorem coinZero-spec :
-    coinAmount coinZero === (0, coinZero)
-  proof
-    refl
-  qed
-
-  theorem coinAmount-spec :
-    forall @(x : ExampleCoin),
-      let (_, y) = coinAmount x in x === y
-  proof
-    pick-any x
-    refl
-  qed
-
-  theorem coinMerge-spec :
-    forall @(x y : ExampleCoin),
-      coinAmount' (coinMerge x y)
-        ===
-      coinAmount' x + coinAmount' y
-  proof
-    pick-any x y
-    refl
-  qed
-
-  // The proof of coinSplit-spec was elided, because it's harder :)
+  law coinSplit-some :
+    forall @(askedAmount : Nat) @(coin exact change : A),
+      coinSplit askedAmount coin === (some exact, change)
+        <-->
+      (askedAmount <= coinAmount' coin) === true
+        /\
+      coinAmount' exact === askedAmount
+        /\
+      coinAmount' change === coinAmount' coin - askedAmount

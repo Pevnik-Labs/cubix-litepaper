@@ -24,7 +24,7 @@ concept LawfulCoin (A : Type1) extends Coin A where
             /\
           let (b, _) = coinAmount whole in b === a
         | (some exact, change) =>
-          (n <= m) === true
+          (n <= a) === true
             /\
           let (b, _) = coinAmount exact in b === n
             /\

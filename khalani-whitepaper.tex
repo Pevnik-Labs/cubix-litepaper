@@ -75,7 +75,7 @@
 
 \begin{appendices}
 
-\section{A deeper dive into Axi}
+\section{Overview of Axi}
 
 Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a purely functional programming language with a strong, static, linear type system and support for formal reasoning about programs in classical higher-order logic. Among mainstream programming languages, it is most similar to Haskell (in spirit) and OCaml (syntactically). It was also heavily inspired by proof assistants based on type theory, like Coq, Lean and Agda.
 
@@ -102,7 +102,7 @@ Axi's architecture is unique in that the language is split into two strictly sep
 
 \subsection{Language features}
 
-In this section we will take a closer look at Axi's language features and see some code examples that demonstrate their use in practice. Note that Axi is not implemented yet, so that the code examples are only an approximation of what we intend to achieve, instead of being a demonstration of an existing language.
+In this section we will take a closer look at Axi's language features.
 
 \subsubsection{The Programming Layer}
 
@@ -118,6 +118,41 @@ Axi is, at its core, a purely functional programming language. It thus supports 
   \item \textbf{Polymorphism and traits}. Axi's type system features polymorphism (also known as ``generics'') as well as traits inspired by Haskell's type classes (but named after Rust's traits). These features make it easy to implement data structures and functions that work for all types that support a certain behaviour, for example a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
 \end{itemize}
 
+\textbf{Quantitative typing}. The standard features of purely functional programming is not everything that Axi has to offer. The killer feature, as far as the programming layer is concerned, are quantitative types, which allow the type system to enforce correct resource usage discipline. This aspect of Axi's type system was inspired by linear logic and its cousin, quantitative type theory, and is an improvement upon an analogous feature of the type system of Move, the programming language of the Sui and Aptos blockchains.
+
+In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with too many or too few uses resulting in a type error. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe send the NFT to the transaction's originator, maybe trade it for something else and handle that something else properly according to its quantity, or maybe send it to somebody as a gift. What the program cannot do in such a situation is forget the NFT and do nothing with it, effectively making it ``lost'' in the guts of the chain. It also cannot copy the NFT and have two instead of just the original one.
+
+To make the programmers' lives easier, every type is also assigned its ``default'' quantity. Every variable will be assigned the default quantity of its type unless the programmer decides otherwise. An important piece of terminology: a type whose default quantity is unrestricted is called a \textit{data type}, whereas a type whose default quantity is either one, at least one or at most one, is called a \textit{resource type}. There are no types whose default quantity is zero. Elements of data types are called data, whereas elements of resource types are called resources.
+
+\textbf{Traits}. A trait is a way of representing an interface satisfied by a type. The definition of a trait consists of a bunch of declarations of constants and functions. The programmer can make a type an \textit{instance} of a trait by implementing the trait's constants and functions for this type.
+
+\subsubsection{The Logic Layer}
+
+Axi's logic layer consists of typed classical higher-order logic with equality whose domains of discourse are the types from the programming layer. More precisely, this means the logic has:
+
+\begin{itemize}
+  \item \textbf{Propositional connectives and constants}. Standard propositional connectives ($\Longrightarrow$, $\land$, $\lor$, $\Longleftrightarrow$, $\sim$) and constants ($\top$, $\bot$) can be used to build up complex propositions from simpler ones.
+  \item \textbf{Quantification over terms and types}. Axi supports universal and existential quantification. We can quantify over terms of a given type ($\forall x : A, \dots$) as well as over types themselves ($\forall A : \texttt{Type}, \dots$), no matter whether we're dealing with data, resources or programs.
+  \item \textbf{Higher-order quantification}. We can also quantify over logical entities like propositions ($\forall P : \texttt{Prop}, \dots$), predicates ($\forall P : A \rightarrow \texttt{Prop}, \dots$), relations ($\forall R : A \rightarrow A \rightarrow \texttt{Prop}, \dots$), logical connectives ($\forall C : \texttt{Prop} \rightarrow \texttt{Prop} \rightarrow \texttt{Prop}, \dots$) or even quantifiers themselves ($\forall Q : (A \rightarrow \texttt{Prop}) \rightarrow \texttt{Prop}, \dots$). This ability of logic to talk not only about the underlying programming language, but also about itself, gives it great expressive power and allows it to make use of all of mathematics when reasoning about the behaviour of programs.
+  \item \textbf{Equality}. The built-in equality relation ($=$) makes it possible to precisely reason about programs' input-output behaviour.
+\end{itemize}
+
+Proving is carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic - instead of being primitives, negation ($\sim P$) is a shorthand for an implication into falsehood ($P \implies \bot$), whereas biconditional ($P \iff Q$) is a shorthand for a conjunction of two implications ($(P \implies Q) \land (Q \implies P)$). The principle of \textit{proof by contradiction}, which allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$, makes the logic classical and thus intimately familiar to all mathematicians.
+
+Equality is handled as in Martin-Löf Type Theory -- proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, Axi provides a convenient feature called \textit{chaining}, which allows reasoning with long chains of equations by writing down and justifying each step separately, similarly to how equality is usually handled with pen and paper. Besides equality, this feature also supports implications, biconditionals and other transitive relations.
+
+One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proof term style}, similar to how proofs look in Agda and Idris (as well as Coq's and Lean's manually written proof terms), or in a \textit{tactic style}, similar to how proofs usually look in Coq or Lean. The difference between Axi and languages that also support both styles, like Coq and Lean, is that in these languages each style is its own separate proof language, whereas in Axi there is a single proof language which, thanks to a clever parser, can be formatted either like terms or like tactics. This feature will make it easier to accomodate computer scientists and mathematicians familiar with either of the aforementioned languages.
+
+\textbf{Concepts -- traits in logic}. Last but not least, the logic can not only talk and reason about the traits we met in the programming layer -- it also introduces the richer and more powerful construct called \textit{concepts}. Concepts extend traits with specifications, i.e. properties expected to be true of the trait's constants and functions. When implementing a concept, the programmer must also provide proofs of the specifications. Thus concepts let programmers precisely define what is expected of trait implementations.
+
+%For example, we could define a DEX trait, with functions like placing orders, canceling orders and collecting tokens from filled orders, and then extend it to a DEX concept by specifying them using properties like ``all orders that are not filled can be canceled'', ``the user can recover his money after canceling an order'', etc. Any smart contract that attempts or pretends to implement a DEX would become much more credible and trustworthy if it implemented this DEX concept. This is because the concept is a relatively short and readable way of making promises and guarantees regarding the service's behaviour -- instead of having to read plenty of code, which moreover might be difficult to understand, the user only needs to check if it implements the DEX concept and read a few short logical specifications to see what the promises are. Even though the latter task is still outside of most people's capabilities, it is vastly simpler than having to do your own audit of the code.
+
+%Moreover, this task can be offloaded to \textit{social learning}, i.e. after some time it might become common knowledge, a good practice, etc., that any purported DEX should implement the DEX trait. In such a scenario, the due diligence is reduced to just looking for the phrase ``implements the DEX trait'' in source code, which is in most people's reach.
+
+\section{Code examples}
+
+In this section we will see some code examples that demonstrate how Axi works in practice. Note that Axi is not implemented yet, so that the code examples are only an approximation of what we intend to achieve, instead of being a demonstration of an existing language.
+
 \begin{example}{An example program -- list functions}
 
 \lstinputlisting{FunProg.axi}
@@ -131,12 +166,6 @@ The above example demonstrates the basics of Axi programming. In lines 1-3 we de
 In lines 5-8 we define a function called \code{app} which concatenates two lists. It takes three arguments: a type \code{A} and two lists \code{l1} and \code{l2} of type \code{List A}, and returns a result of type \code{List A}. The type argument means that the function is polymorphic. It is also marked with the symbol \code{@}, which means it's an \textit{implicit} argument, i.e. when calling the function it can be omitted and will get automatically inferred. The body of the function is simple: we pattern match on the argument \code{l1}. If it's \code{nil}, we return \code{l2}. If it's of the form \code{cons h t}, the result's head is \code{h} and its tail is computed by the recursive call \code{app t l2}.
 
 In lines 10-12 we define another function, called \code{map}, which applies a function \code{f} to every element of a list. This time, however, we used an abbreviated syntax. The two type arguments \code{@A} and \code{@B} are marked as implicit, but we don't write \code{:\ Type}, which gets inferred automatically. The argument \code{f} and its type are written out in full. The last argument, of type \code{List A}, and the result type \code{List B}, appear after the last \code{:} as the type \code{List A -> List B}. Because of this, it is understood that in the next, pattern matching on the input of type \code{List A} follows.
-
-\textbf{Quantitative typing}. The standard features of purely functional programming is not everything that Axi has to offer. The killer feature, as far as the programming layer is concerned, are quantitative types, which allow the type system to enforce correct resource usage discipline. This aspect of Axi's type system was inspired by linear logic and its cousin, quantitative type theory, and is an improvement upon an analogous feature of the type system of Move, the programming language of the Sui and Aptos blockchains.
-
-In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with too many or too few uses resulting in a type error. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe send the NFT to the transaction's originator, maybe trade it for something else and handle that something else properly according to its quantity, or maybe send it to somebody as a gift. What the program cannot do in such a situation is forget the NFT and do nothing with it, effectively making it ``lost'' in the guts of the chain. It also cannot copy the NFT and have two instead of just the original one.
-
-To make the programmers' lives easier, every type is also assigned its ``default'' quantity. Every variable will be assigned the default quantity of its type unless the programmer decides otherwise. An important piece of terminology: a type whose default quantity is unrestricted is called a \textit{data type}, whereas a type whose default quantity is either one, at least one or at most one, is called a \textit{resource type}. There are no types whose default quantity is zero. Elements of data types are called data, whereas elements of resource types are called resources.
 
 \begin{example}{Quantitative typing}
 
@@ -153,8 +182,6 @@ This error is caught by the type checker, which complains that \code{x} was used
 The second function, called \code{coinBlackhole}, takes an argument \code{x} of type \code{ExampleCoin} and returns a value of type \code{Unit}, which is a type with only one element \code{()}. The \code{Unit} type is returned to indicate that the function's result ``doesn't matter''. Because the type of \code{x} is linear, \code{coinBlackhole} must use \code{x} exactly once. However, it doesn't use it at all, which is a type error.
 
 This error is caught by the type checker, which complains that \code{x} was not used. Similarly to the previous error message, two solutions are offered: use \code{x} or make the type \code{ExampleCoin} affine so that it allows zero or one usages. The fact that this error was caught by the type system is very important, because \code{ExampleCoin}'s creator did not intend for values of this type to be deletable.
-
-\textbf{Traits}. A trait is a way of representing an interface satisfied by a type. The definition of a trait consists of a bunch of declarations of constants and functions. The programmer can make a type an \textit{instance} of a trait by implementing the trait's constants and functions for this type.
 
 \begin{example}{Coin trait}
 
@@ -176,23 +203,6 @@ In lines 17-19 we implement \code{coinAmount}. It takes an argument \code{c} of 
 
 Last but not least, in lines 21-30 we implement \code{coinSplit}. It takes two argument, \code{askedAmount} and \code{c} of type \code{ExampleCoin}. First, in line 23, we consume \code{c} to check its amount and store it in \code{n}. Then on line 24 we check if \code{n} is big enough for the split to succeed. If it does, on lines 26-28 we return a tuple whose first component is a coin whose amount is the \code{askedAmount} (wrapped in \code{some} to indicate success) and whose second component is a coin whose amount is \code{n} minus the \code{askedAmount} that went to the other coin. If \code{n} is not big enough, we return a tuple whose first component is \code{none} (to indicate failure) and whose second component is a coin whose amount is \code{n}, i.e. a coin that is the same as the original coin \code{c}.
 
-\subsubsection{The Logic Layer}
-
-Axi's logic layer consists of typed classical higher-order logic with equality whose domains of discourse are the types from the programming layer. More precisely, this means the logic has:
-
-\begin{itemize}
-  \item \textbf{Propositional connectives and constants}. Standard propositional connectives ($\Longrightarrow$, $\land$, $\lor$, $\Longleftrightarrow$, $\sim$) and constants ($\top$, $\bot$) can be used to build up complex propositions from simpler ones.
-  \item \textbf{Quantification over terms and types}. Axi supports universal and existential quantification. We can quantify over terms of a given type ($\forall x : A, \dots$) as well as over types themselves ($\forall A : \texttt{Type}, \dots$), no matter whether we're dealing with data, resources or programs.
-  \item \textbf{Higher-order quantification}. We can also quantify over logical entities like propositions ($\forall P : \texttt{Prop}, \dots$), predicates ($\forall P : A \rightarrow \texttt{Prop}, \dots$), relations ($\forall R : A \rightarrow A \rightarrow \texttt{Prop}, \dots$), logical connectives ($\forall C : \texttt{Prop} \rightarrow \texttt{Prop} \rightarrow \texttt{Prop}, \dots$) or even quantifiers themselves ($\forall Q : (A \rightarrow \texttt{Prop}) \rightarrow \texttt{Prop}, \dots$). This ability of logic to talk not only about the underlying programming language, but also about itself, gives it great expressive power and allows it to make use of all of mathematics when reasoning about the behaviour of programs.
-  \item \textbf{Equality}. The built-in equality relation ($=$) makes it possible to precisely reason about programs' input-output behaviour.
-\end{itemize}
-
-Proving is carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic - instead of being primitives, negation ($\sim P$) is a shorthand for an implication into falsehood ($P \implies \bot$), whereas biconditional ($P \iff Q$) is a shorthand for a conjunction of two implications ($(P \implies Q) \land (Q \implies P)$). The principle of \textit{proof by contradiction}, which allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$, makes the logic classical and thus intimately familiar to all mathematicians.
-
-Equality is handled as in Martin-Löf Type Theory -- proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, Axi provides a convenient feature called \textit{chaining}, which allows reasoning with long chains of equations by writing down and justifying each step separately, similarly to how equality is usually handled with pen and paper. Besides equality, this feature also supports implications, biconditionals and other transitive relations.
-
-One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proof term style}, similar to how proofs look in Agda and Idris (as well as Coq's and Lean's manually written proof terms), or in a \textit{tactic style}, similar to how proofs usually look in Coq or Lean. The difference between Axi and languages that also support both styles, like Coq and Lean, is that in these languages each style is its own separate proof language, whereas in Axi there is a single proof language which, thanks to a clever parser, can be formatted either like terms or like tactics. This feature will make it easier to accomodate computer scientists and mathematicians familiar with either of the aforementioned languages.
-
 \begin{example}{A simple proof}
 
 \lstinputlisting{SimpleProof.axi}
@@ -209,17 +219,31 @@ On line 10 we indicate the start of the (sub)proof for the second goal, i.e. the
 
 In lines 12-16, we use chaining to finish the goal off. It works like this: we start with the left hand side of the current goal (which must be an equation), which in our case is \code{app (app (cons h t) l2) l3} (line 13). Then in subsequent lines we write out what this expression is equal to (after the equality symbol \code{===}) and provide justifications for why this is the case (after the keyword \code{by}). In our case, on line 14 indicate that our goal's left-hand side is equal to \code{cons h (app (app t l2) l3)}, but we omit the justification for this. We could have written \code{by refl}, but this is the most trivial justification possible, so Axi guesses this is what we mean when we omit a justification. Then, on line 15, we indicate that it is equal to \code{cons h (app t (app l2 l3))}, justifying it with \code{by rewrite IH}, i.e. we are making use of our induction hypothesis. This justification is crucial and cannot be omitted, because Axi cannot infer it on its own. Finally, on line 16, we indicate that our expression is equal to the right-hand side of our goal, again omitting the justification, because it is trivial. All in all, the entire chaining proves that \code{app (app (cons h t) l2) l3} is equal to \code{app (cons h t) (app l2 l3)}, which is exactly what our goal was. Thus the proof is finished, which we indicate on line 17 with the keyword \code{qed}.
 
-\textbf{Concepts -- traits in logic}. Last but not least, the logic can not only talk and reason about the traits we met in the programming layer -- it also introduces the richer and more powerful construct called \textit{concepts}. Concepts extend traits with specifications, i.e. properties expected to be true of the trait's constants and functions. When implementing a concept, the programmer must also provide proofs of the specifications. Thus concepts let programmers precisely define what is expected of trait implementations.
-
-%For example, we could define a DEX trait, with functions like placing orders, canceling orders and collecting tokens from filled orders, and then extend it to a DEX concept by specifying them using properties like ``all orders that are not filled can be canceled'', ``the user can recover his money after canceling an order'', etc. Any smart contract that attempts or pretends to implement a DEX would become much more credible and trustworthy if it implemented this DEX concept. This is because the concept is a relatively short and readable way of making promises and guarantees regarding the service's behaviour -- instead of having to read plenty of code, which moreover might be difficult to understand, the user only needs to check if it implements the DEX concept and read a few short logical specifications to see what the promises are. Even though the latter task is still outside of most people's capabilities, it is vastly simpler than having to do your own audit of the code.
-
-%Moreover, this task can be offloaded to \textit{social learning}, i.e. after some time it might become common knowledge, a good practice, etc., that any purported DEX should implement the DEX trait. In such a scenario, the due diligence is reduced to just looking for the phrase ``implements the DEX trait'' in source code, which is in most people's reach.
-
-\begin{example}{Coin concept and its implementation for \code{ExampleCoin}}
+\begin{example}{Lawful coin concept}
 
 \lstinputlisting{Concept.axi}
 
 \end{example}
+
+The above example shows a concept called \code{LawfulCoin}, which extends the trait \code{Coin} that we met previously. Note this distinction: the trait and its implementation are a part of the programming layer, whereas the concept and its implementation are part of the logic layer.
+
+In lines 2-3, we define a function \code{coinAmount'} that is part of the \code{LawfulCoin} concept. This is a feature we have not mentioned before: both traits and concepts, besides declarations, can also contain (auxiliary) definitions. In our case, we need the function \code{coinAmount'} to avoid using the much more cumbersome \code{coinAmount} when stating the properties that lawful coins should satisfy. \code{coinAmount'} takes an argument of type \code{A} (of which we think as a coin, because it has the \code{Coin} trait) and returns only the first output of \code{coinAmount}, while ignoring its second output.
+
+It might seem that \code{coinAmount'} ignoring the coin returned by \code{coinAmount} is a type error (zero uses instead of exactly one), but function definitions that belong to the logic layer play by different rules from ordinary functions. Most importantly, they don't need to adhere to the resource usage discipline. In other words, auxiliary functions defined solely to be used to state theorems can freely delete or copy resources, even it were a type error for an ordinary function to do so. This is not a problem from the point of view of ordinary programs -- these ``logic-only programs'' cannot be run (they can only be reasoned about when proving theorems), so they can never do anything bad to on-chain assets.
+
+Next, in lines 5-34, comes the main part of the concept's definition. In lines 5-7 we declare a law claled \code{coinAmount-spec} which specifies the behaviour of \code{coinAmount} -- the second component of its output must be equal to its input. This is the guarantee missing from the \code{Coin} trait that we were expecting to hold. Every implementation of \code{LawfulCoin} will have to provide a proof that turns this law into a theorem.
+
+Having given a specification of \code{coinAmount}, all the remaining laws will use \code{coinAmount'} only. In lines 9-10 we declare the law \code{coinZero-spec} which says that the amount of \code{coinZero} is zero. In lines 12-16, the law \code{coinMerge-spec} says that the amount in a merged coin is equal to the sum of amounts of the individual coins.
+
+In lines 18-24 the law \code{coinSplit-none} says that \code{coinSplit} returns \code{(none, coin')} if and only if the asked amount was not smaller than \code{coin}'s amount and the coins are equal. However, this only specifies one of the two cases that may happen when calling \code{coinSplit}, so we need another law. In lines 26-34 the law \code{coinSplit-some} says that \code{coinSplit} returns \code{(some exact, change)} if and only if the asked amount was smaller than \code{coin}'s amount, the amount of \code{exact} is equal to \code{askedAmount} and the amount of \code{change} is equal to \code{coin}'s amount minus the asked amount. Together, these two laws fully specify the working of \code{coinSplit}: if the coin's amount is enough, the coin gets split into a coin with the amount we asked and a coin which contains the ``change''. If we asked for too much, we just get the original coin back.
+
+\begin{example}{Implementation of \code{LawfulCoin} for \code{ExampleCoin}}
+
+\lstinputlisting{ConceptInstance.axi}
+
+\end{example}
+
+The above example shows how to implement \code{LawfulCoin} for the type \code{ExampleCoin}. We don't need to reimplement \code{coinAmount'} or anything like that -- this function is defined by the concept and we can use it freely. What we need to do is to replace every \code{law} from the concept's definition with a \code{theorem}. It so happens that we implemented \code{coinAmount}, \code{coinZero} and \code{coinMerge} correctly and also our implementations are so simple that the proofs go through just by computation (i.e. \code{refl}). The only theorems requiring a non-trivial amount of proving would be \code{coinSplit-none} and \code{coinSplit-some}, but we omit these proofs because they are more about natural numbers than the concept of \code{LawfulCoin}.
 
 \section{Interacting with the ledger in Axi}
 
