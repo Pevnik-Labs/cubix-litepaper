@@ -17,7 +17,7 @@
 \usepackage{tabularx}
 \usepackage{tikz}
 \usepackage[t1]{sourcecodepro}
-\usepackage[toc, page]{appendix}
+\usepackage[title, toc, page]{appendix}
 \usetikzlibrary{arrows}
 
 \input{axi-listings-settings}
@@ -703,7 +703,13 @@ TODO
 
 TODO
 
+\newpage
+
 \begin{appendices}
+
+\makeatletter
+\renewcommand{\@seccntformat}[1]{\appendixname~\csname the#1\endcsname: }
+\makeatother
 
 \section{Overview of Axi}
 
@@ -771,6 +777,8 @@ Equality is handled as in Martin-Löf Type Theory -- proved by reflexivity and e
 One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proof term style}, similar to how proofs look in Agda and Idris (as well as Coq's and Lean's manually written proof terms), or in a \textit{tactic style}, similar to how proofs usually look in Coq or Lean. The difference between Axi and languages that also support both styles, like Coq and Lean, is that in these languages each style is its own separate proof language, whereas in Axi there is a single proof language which, thanks to a clever parser, can be formatted either like terms or like tactics. This feature will make it easier to accomodate computer scientists and mathematicians familiar with either of the aforementioned languages.
 
 \textbf{Concepts -- traits in logic}. Last but not least, the logic can not only talk and reason about the traits we met in the programming layer -- it also introduces the richer and more powerful construct called \textit{concepts}. Concepts extend traits with specifications, i.e. properties expected to be true of the trait's constants and functions. When implementing a concept, the programmer must also provide proofs of the specifications. Thus concepts let programmers precisely define what is expected of trait implementations.
+
+\newpage
 
 \section{Code examples}
 
@@ -865,6 +873,8 @@ In lines 18-24 the law \code{coinSplit-none} says that \code{coinSplit} returns 
 \end{example}
 
 The above example shows how to implement \code{LawfulCoin} for the type \code{ExampleCoin}. We don't need to reimplement \code{coinAmount'} or anything like that -- this function is defined by the concept and we can use it freely. What we need to do is to replace every \code{law} from the concept's definition with a \code{theorem}. It so happens that we implemented \code{coinAmount}, \code{coinZero} and \code{coinMerge} correctly and also our implementations are so simple that the proofs go through just by computation (i.e. \code{refl}). The only theorems requiring a non-trivial amount of proving would be \code{coinSplit-none} and \code{coinSplit-some}, but we omit these proofs because they are more about natural numbers than the concept of \code{LawfulCoin}.
+
+\newpage
 
 \section{Interacting with the ledger in Axi}
 
