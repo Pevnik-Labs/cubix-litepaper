@@ -59,7 +59,7 @@ collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
 : KhalaniCoin * DonutShop
 = if addressof ownership.myShop == shop.thisShop then
     let profits = shop.balance in
-    let newShop = record shop with balance = coinZero in
+    let newShop = record shop where balance = coinZero in
     (profits, newShop, ledger)
   else
     (coinZero, shop, ledger)
