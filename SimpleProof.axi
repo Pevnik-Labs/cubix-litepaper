@@ -1,5 +1,5 @@
 theorem app-assoc :
-  forall (A : Type) (l1 l2 l3 : List A),
+  forall (A : Type) @(l1 l2 l3 : List A),
     app (app l1 l2) l3 === app l1 (app l2 l3)
 proof
   pick-any A l1

@@ -1,4 +1,4 @@
-noncomputational coinAmount' @A [Coin A] (x : A) : Nat =
+noncomputable coinAmount' @A [Coin A] (x : A) : Nat =
   let (n, _) : Nat * A = coinAmount c in n
 
 concept LawfulCoin (A : Type1) extends Coin A where

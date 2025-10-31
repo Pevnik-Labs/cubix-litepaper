@@ -18,9 +18,11 @@ main
     (optShopRef, ledger) = referenceof DonutShop shopAddr ledger
   in
   match optShopRef with
+  | none => ledger
   | some shopRef =>
     let (optCoin, ledger) = delete KhalaniCoin coinAddr ledger in
     match optCoin with
+    | none => ledger
     | some paymentCoin =>
       let
         (shop, returnShop) = update shopRef ledger
@@ -30,13 +32,10 @@ main
         ledger = initCoinCell changeCoin
       in
       match optDonut with
+      | none => ledger
       | some donut =>
         let
           (newDonutAddr, initDonutCell) = new myAddress ledger
           ledger = initDonutCell donut
         in
         ledger
-      | none => ledger
-    | none => ledger
-  | none => ledger
-

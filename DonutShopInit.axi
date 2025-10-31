@@ -6,7 +6,8 @@ main
 | ledger =>
   let
     (myAddress, ledger) = whoami ledger
-    (ownershipToken, ledger) = init ledger
+    price = 1000
+    (ownershipToken, ledger) = init price ledger
     (tokenAddress, initTokenCell) = new myAddress ledger
     ledger = initTokenCell ownershipToken
   in

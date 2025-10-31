@@ -51,13 +51,13 @@ buyDonut (payment : KhalaniCoin) (shop : DonutShop)
   | none => (none, change, shop)
   | some paid =>
     let
-      newSerialNumber = shop.nextSerialNumber
-      donut : Donut = record where serialNumber = newSerialNumber
+      donutSerialNumber = shop.nextSerialNumber
+      donut : Donut = record where serialNumber = donutSerialNumber
       newBalance = coinMerge shop.balance paid
       newShop : DonutShop =
         record shop where
           balance = newBalance
-          nextSerialNumber = newSerialNumber + 1
+          nextSerialNumber = donutSerialNumber + 1
     in
     (some donut, change, newShop)
 

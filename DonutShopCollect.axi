@@ -16,6 +16,7 @@ main
       delete DonutShopOwnershipToken ownershipTokenAddr ledger
   in
   match optOwnershipToken with
+  | none => ledger
   | some ownershipToken =>
     let
       (shopRef, ownershipToken) = getMyShopRef ownershipToken
@@ -28,5 +29,4 @@ main
       ledger = initTokenCell ownershipToken
     in
     ledger
-  | none => ledger
 
