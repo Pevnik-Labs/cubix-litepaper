@@ -94,7 +94,7 @@ Some examples:
 \item November 2021 - Squid Coin (\$3M lost)
 \end{itemize}
 
-\subsubsection{“Lost in the maze” syndrome}
+\subsubsection{``Lost in the maze'' syndrome}
 
 Blockchain technology evolves rapidly. For typical users the space is a maze of chains, services, tokens, credentials, keys, exchanges and responsibilities which becomes increasingly hard to navigate. Although there are numerous efforts to establish community standards (for example ERC-20 tokens, wallets, DEXes), they do not offset the quickly growing complexity.
 
@@ -107,9 +107,9 @@ According to CoinMarketCap, as of October 2025 there are 70 blockchains with mar
 For software developers, blockchains are not nearly as convenient as more traditional computing platforms. The example limitations are:
 
 \paragraph{The paid-call problem.} to use a given blockchain, a users needs to acquire the native cryptocurrency of this blockchain (in order to pay gas fee). This means the gas mechanics constrains the architecture of dapps. This problem could be mitigated by features like sponsored transactions or delegation.
-\paragraph{Explicit transaction signing.} Every action taken by a user necessarily takes of form of a transaction, which in turn requires cryptographic signing. Although signing could be theoretically done by any software whenever needed, this would create a security vulnerability around private keys sharing. Therefore users tend to use a single “trusted” wallet app for all the signing work, which mitigates sharing risk but on the other hand enforces every act of signing to be a tedious manual interactive process, which in result impairs overall user experience. This could be mitigated if the blockchain programming model supported delegation.
-\paragraph{Lack of a uniform delegation mechanism.} The previous case is just part of a bigger one: delegation is just not there in blockchains. Say we have Alice (user), Bob, Charlie and Dylan (on-chain services). Bob provides some complicated functionality which involves further interaction with Charlie and Dylan. Alice has no rights to interact with Dylan, so she is forced to use Bob as a privileged intermediary. Charlie recognizes Alice as a user with certain access rights. Bob cannot directly call Charlie because Bob has no rights to do so. Hence Bob would like to interact with Charlie on behalf of Alice and this is exactly the essence of delegation. When Alice wants to ask Bob to do something for her, Bob will have troubles providing satisfactory level of “automation” of actions on behalf of Alice. This is not because such a delegation is fundamentally impossible, rather just the blockchain industry has not agreed on sufficiently safe and universal mechanism of delegation yet. For example, Ethereum proposals ERC-4337 and EIP-7702 suggest such a universal delegation mechanism that could be added to Ethereum.
-\paragraph{The “self-driving taxi paradox”.} Given the currently available autonomous driving technology, combined with wireless Internet access, it is possible to run a taxi service without a driver. However such a taxi business would face a seemingly trivial problem - how a car without a driver would accomplish filling itself up with gas? So here is the paradox - a self-driving taxi still needs an operator just to accomplish the gas station interaction. In blockchains we have a similar trouble: services cannot pay for their own gas consumption. Normally, it the transaction sender who pays gas for the whole transaction execution. This immediately becomes a problem when a service has a common part (say “a backend”) that from time to time needs to perform some maintenance tasks. These tasks are not performed for a specific user of the service, these tasks are for the service as a whole. But because the service has no way to cover the gas cost of these maintenance activities, the developer of the service has only two solutions available:
+\paragraph{Explicit transaction signing.} Every action taken by a user necessarily takes of form of a transaction, which in turn requires cryptographic signing. Although signing could be theoretically done by any software whenever needed, this would create a security vulnerability around private keys sharing. Therefore users tend to use a single ``trusted'' wallet app for all the signing work, which mitigates sharing risk but on the other hand enforces every act of signing to be a tedious manual interactive process, which in result impairs overall user experience. This could be mitigated if the blockchain programming model supported delegation.
+\paragraph{Lack of a uniform delegation mechanism.} The previous case is just part of a bigger one: delegation is just not there in blockchains. Say we have Alice (user), Bob, Charlie and Dylan (on-chain services). Bob provides some complicated functionality which involves further interaction with Charlie and Dylan. Alice has no rights to interact with Dylan, so she is forced to use Bob as a privileged intermediary. Charlie recognizes Alice as a user with certain access rights. Bob cannot directly call Charlie because Bob has no rights to do so. Hence Bob would like to interact with Charlie on behalf of Alice and this is exactly the essence of delegation. When Alice wants to ask Bob to do something for her, Bob will have troubles providing satisfactory level of ``automation'' of actions on behalf of Alice. This is not because such a delegation is fundamentally impossible, rather just the blockchain industry has not agreed on sufficiently safe and universal mechanism of delegation yet. For example, Ethereum proposals ERC-4337 and EIP-7702 suggest such a universal delegation mechanism that could be added to Ethereum.
+\paragraph{The ``self-driving taxi paradox''.} Given the currently available autonomous driving technology, combined with wireless Internet access, it is possible to run a taxi service without a driver. However such a taxi business would face a seemingly trivial problem - how a car without a driver would accomplish filling itself up with gas? So here is the paradox - a self-driving taxi still needs an operator just to accomplish the gas station interaction. In blockchains we have a similar trouble: services cannot pay for their own gas consumption. Normally, it the transaction sender who pays gas for the whole transaction execution. This immediately becomes a problem when a service has a common part (say ``a backend'') that from time to time needs to perform some maintenance tasks. These tasks are not performed for a specific user of the service, these tasks are for the service as a whole. But because the service has no way to cover the gas cost of these maintenance activities, the developer of the service has only two solutions available:
 \begin{enumerate}
   \item\label{itm:taxi-random-user} charge random users during their interaction
   \item\label{itm:taxi-housekeeper} invoke maintenance whenever needed using a dedicated “housekeeper “account.
@@ -161,9 +161,9 @@ The key distinguishing features of the Khalani blockchain are:
 \begin{itemize}
   \item Axi, a purely functional programming language for smart contracts
   \item \begin{itemize}
-    \item type system based on linear logic/quantitative type theory (aka “programmable assets”)
+    \item type system based on linear logic/quantitative type theory (aka ``programmable assets'')
     \item on-chain formal logic for proving theorems about smart contracts
-    \item concepts (infrastructure that combines interfaces with formal specifications, in other words combines programming and logic into a convenient flow of “semantic interfaces”)
+    \item concepts (infrastructure that combines interfaces with formal specifications, in other words combines programming and logic into a convenient flow of ``semantic interfaces'')
   \end{itemize}
 \item native support for intents and delegation
 \item on-chain events system (pub-sub and timers)
@@ -245,7 +245,7 @@ Axi borrows key ideas from type-theoretical proof assistants like Coq, Lean and 
 
 \subsubsection{Concepts}
 
-Axi merges programming and logic via \textbf{concepts} (“lawful traits”). A concept bundles together declarations of constants, functions, abstract types, and logical statements about them. In other words concepts is how the profits of formal logic are transported to the programming layer.
+Axi merges programming and logic via \textbf{concepts} (``lawful traits''). A concept bundles together declarations of constants, functions, abstract types, and logical statements about them. In other words concepts is how the profits of formal logic are transported to the programming layer.
 
 Concepts can capture high-level on-chain concepts such as DEX, bridge, swap, and escrow. We expect a growing library of such concepts to develop organically over time, thus encouraging convergence on common abstractions needed for integration.
 
@@ -392,7 +392,7 @@ The source code of a package is stored on-chain as an abstract syntax tree (AST)
 
 Every package is public and an import system allows code from any package to use code from any previously deployed packages. In other words, a package is a public shared library.
 
-Packages are immutable and permanent, i.e. once deployed, they cannot be changed in any way and they stay on-chain forever. Thus there is no package “upgrade” mechanism and no package versioning. Deploying a modified version of an existing package yields a new independent package with a new hash, regardless of name.
+Packages are immutable and permanent, i.e. once deployed, they cannot be changed in any way and they stay on-chain forever. Thus there is no package ``upgrade'' mechanism and no package versioning. Deploying a modified version of an existing package yields a new independent package with a new hash, regardless of name.
 
 \subsubsection{Accounts and ownership}
 
@@ -400,7 +400,7 @@ As in other blockchains, Khalani has the concept of user accounts. An account is
 
 Account address is obtained by SHA-3-256 hash of the concatenation of two values: cryptosystem id (1 byte) and the public key from the key-pair generated by the user.
 
-Every transaction must be signed by an account. The address of signing account is call “tx sender”.
+Every transaction must be signed by an account. The address of signing account is call ``tx sender''.
 
 Changes done by a transaction to the blockchain state are limited by access control mechanics. Every cell is either shared or address-owned. In the address-owned case, the owner may be an account or another cell.
 
@@ -408,7 +408,7 @@ Changes done by a transaction to the blockchain state are limited by access cont
 
 The reader may be surprised we have not mentioned smart contracts yet, while they otherwise seem to be an ubiquitous concept in the blockchain industry. This is for a good reason.
 
-Historically, the common understanding of what a smart contract is, has been established in the technological context of Ethereum. Ethereum has two types of accounts (we ignore here the latest ERC-4337 addition of so called “smart accounts”):
+Historically, the common understanding of what a smart contract is, has been established in the technological context of Ethereum. Ethereum has two types of accounts (we ignore here the latest ERC-4337 addition of so called ``smart accounts''):
 
 \begin{itemize}
   \item externally owned accounts (EOA)
@@ -423,21 +423,21 @@ The model of Ethereum was heavily inspired by object-oriented programming ideas,
   \item SCAs represent programs (and operate as if being standalone mutable objects)
 \end{itemize}
 
-Inside a SCA data and code operating on this data are bundled together, i.e. exactly like you would have in a singleton object in any object-oriented programming language. Because public methods of a SCA form an API that other SCAs (and transactions) can call, it can also be seen as a small “server” operating on-chain.
+Inside a SCA data and code operating on this data are bundled together, i.e. exactly like you would have in a singleton object in any object-oriented programming language. Because public methods of a SCA form an API that other SCAs (and transactions) can call, it can also be seen as a small ``server'' operating on-chain.
 
-However in most object-oriented programming languages, classes and instances are separated, so that classes contain code, while objects contain data. This way, a class serves as a template and several instances of it (objects) can be created, all of these objects sharing the same behavior. This abstraction is not properly reflected in the Ethereum model. This problem can be easily fixed, though - it would be sufficient to detach code from objects, i.e. have objects and classes as separate concepts in the VM. But when you follow this idea, the concept of a “smart contract” does not fit to the situation anymore.
+However in most object-oriented programming languages, classes and instances are separated, so that classes contain code, while objects contain data. This way, a class serves as a template and several instances of it (objects) can be created, all of these objects sharing the same behavior. This abstraction is not properly reflected in the Ethereum model. This problem can be easily fixed, though - it would be sufficient to detach code from objects, i.e. have objects and classes as separate concepts in the VM. But when you follow this idea, the concept of a ``smart contract'' does not fit to the situation anymore.
 
 This is exactly what we do in the Khalani blockchain:
 
 \begin{itemize}
   \item code is in modules
   \item data is in cells
-  \item every cell is really an object - its “class” is the type it points to
+  \item every cell is really an object - its ``class'' is the type it points to
 \end{itemize}
 
 Because every cell points to its type, cells correspond to objects in the object-oriented model. Features of a cell are defined in the module which defines the cell’s type.
 
-In summary: smart contracts from Ethereum can be ported to the Khalani blockchain - every smart contract would then correspond to a cell. We just do not use the term “smart-contract” for a cell because the code defining the structure and behavior of the cell is not part of the cell (instead it is in the corresponding module). We also do not want to use the term “smart-contract” meaning the code inside of a module, because this could create even bigger confusion for people used to Ethereum model (because in Khalani the closest thing to Ethereum smart contracts are really (shared) cells).
+In summary: smart contracts from Ethereum can be ported to the Khalani blockchain - every smart contract would then correspond to a cell. We just do not use the term ``smart-contract'' for a cell because the code defining the structure and behavior of the cell is not part of the cell (instead it is in the corresponding module). We also do not want to use the term ``smart-contract'' meaning the code inside of a module, because this could create even bigger confusion for people used to Ethereum model (because in Khalani the closest thing to Ethereum smart contracts are really (shared) cells).
 
 \subsubsection{Cell usage patterns}
 
@@ -451,7 +451,7 @@ The blockchain cell-based model is very flexible and it is not desirable (or eve
 
 A \textbf{service} is a pattern that effectively resembles smart-contract accounts from Ethereum: there is an on-chain object sitting at a fixed well-known address and offering a public interface to be called by other on-chain actors (objects and accounts). And example of such service could  be a DEX, a bridge, a name-registration service, an oracle or a facade to on-chain economical game.
 
-An \textbf{asset} pattern is for creating generally “passive” resources which can be traded/purchased: cryptocurrencies, NFTs, wrapped coins, soul-bound tokens. An built-in cryptocurrency of Khalani is also materialized using asset pattern.
+An \textbf{asset} pattern is for creating generally ``passive'' resources which can be traded/purchased: cryptocurrencies, NFTs, wrapped coins, soul-bound tokens. An built-in cryptocurrency of Khalani is also materialized using asset pattern.
 
 A \textbf{mandarin} pattern is the one we promote for intent-based processing. We introduce it later in the document.
 
@@ -495,7 +495,7 @@ Let’s look closer at the example situation we sketched in the Introduction cha
 Say we have Alice (user), Bob, Charlie and Dylan (on-chain services). Bob provides some complicated functionality which involves further interaction with Charlie and Dylan. Alice has no rights to interact with Dylan, so she is forced to use Bob as a privileged intermediary. Charlie recognizes Alice as a user with certain access rights. Bob cannot directly call Charlie because Bob has no rights to do so. Hence Bob would like to interact with Charlie on behalf of Alice 
 \end{quotation}
 
-On the pictures below we use green arrows to denote “has access” and red arrows to denote “access denied”.
+On the pictures below we use green arrows to denote ``has access'' and red arrows to denote ``access denied''.
 
 So we start with Alice who has a problem:
 
@@ -507,7 +507,7 @@ So we start with Alice who has a problem:
 
 Alice want to achieve certain business goal. However, for this to happen, Alice would need to use both Charlie and Dylan to achieve her goal. Charlie is a service or resource which Alice has access to. Dylan is a complex or access-restricted infrastructure, which is beyond Alice’ reach.
 
-Alice wants to solve her problem. She found a helper service Bob (hence we named it “a solver”), who can help her with the complicated task of accessing Dylan infrastructure:
+Alice wants to solve her problem. She found a helper service Bob (hence we named it ``a solver''), who can help her with the complicated task of accessing Dylan infrastructure:
 
 \begin{figure}[H]
   \centering
@@ -523,9 +523,9 @@ The missing element here is the ability to \textbf{delegate} Alice’s access ri
   \label{fig:delegation-3}
 \end{figure}
 
-The delegation mechanism is potentially very powerful. In particular it is a crucial element of the infrastructure needed for intent-based processing (which we explain later, in the **Intents** chapter). At the same time, any such mechanism is extremely dangerous, because by its very nature it is there to bypass access-rights limitations, hence malicious players can utilize this as a a universal fraud tooling.
+The delegation mechanism is potentially very powerful. In particular it is a crucial element of the infrastructure needed for intent-based processing (which we explain later, in the \textbf{Intents} chapter). At the same time, any such mechanism is extremely dangerous, because by its very nature it is there to bypass access-rights limitations, hence malicious players can utilize this as a a universal fraud tooling.
 
-In Khalani, we attempt to get best of both worlds: maximal safety and maximal flexibility. Therefore, we do not follow the Ethereum strategy to introduce delegation. Instead, our delegation model is based on a variant of the capability pattern. We allow Alice to form a so called “speculative handle” to represent her rights to access Charlie. Alice can pass such a handle to Bob so to execute the delegation of privileges. However, this delegation is non-exclusive (i.e. can be given to several solvers) and it also can be revoked.
+In Khalani, we attempt to get best of both worlds: maximal safety and maximal flexibility. Therefore, we do not follow the Ethereum strategy to introduce delegation. Instead, our delegation model is based on a variant of the capability pattern. We allow Alice to form a so called ``speculative handle'' to represent her rights to access Charlie. Alice can pass such a handle to Bob so to execute the delegation of privileges. However, this delegation is non-exclusive (i.e. can be given to several solvers) and it also can be revoked.
 
 \subsection{Pub-sub, timers and gas reserve}
 
@@ -558,7 +558,7 @@ pub trait EventEmitter<T> {
 }
 \end{lstlisting}
 
-However the semantics of on-chain events is more tricky compared to traditional Ethereum-like event systems with off-chain observers only. The new problem here is “who pays gas for the handler’s execution”. We discuss this problem in the next chapter.
+However the semantics of on-chain events is more tricky compared to traditional Ethereum-like event systems with off-chain observers only. The new problem here is ``who pays gas for the handler’s execution''. We discuss this problem in the next chapter.
 
 \subsubsection{Gas reserve}
 
@@ -574,7 +574,7 @@ Without pub-sub, the payment model is simple: the whole call tree gas cost is co
   \label{fig:gas-cost-without-pub-sub}
 \end{figure}
 
-With pub-sub present, the situation gets more tricky. The invocation of an event handler is not really a “call”, because it is the pub-sub machinery doing this call. Hence every handler invocation spawns a separate call tree.
+With pub-sub present, the situation gets more tricky. The invocation of an event handler is not really a ``call'', because it is the pub-sub machinery doing this call. Hence every handler invocation spawns a separate call tree.
 
 \begin{figure}[H]
   \centering
@@ -596,11 +596,11 @@ What the system should do if the gas cost of the handler execution is not suffic
 A safer deterministic design can be obtained if we combine the following rules:
 
 \begin{itemize}
-  \item “best effort” subscriptions and “guaranteed” subscriptions are distinguished
-  \item “guaranteed” subscriptions are one-off (i.e. get cancelled after one handler call)
-  \item “guaranteed” subscriptions are covered with gas reserve (see below)
+  \item ``best effort'' subscriptions and ``guaranteed'' subscriptions are distinguished
+  \item ``guaranteed'' subscriptions are one-off (i.e. get cancelled after one handler call)
+  \item ``guaranteed'' subscriptions are covered with gas reserve (see below)
   \item the handler registered during a guaranteed subscription must follow the static gas regime (see below)
-  \item explicit **gas reserve** is maintained by every smart contract (or Gas is turned into separate cryptocurrency)
+  \item explicit \textbf{gas reserve} is maintained by every smart contract (or Gas is turned into separate cryptocurrency)
   \item static gas estimation is supported (for sufficiently limited sub-language of the native smart-contracts language)
 \end{itemize}
 
