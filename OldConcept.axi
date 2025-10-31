@@ -30,7 +30,7 @@ concept LawfulCoin (A : Type1) extends Coin A where
             /\
           let (c, _) = coinAmount change in c === a - n
 
-instance LawfulCoin ExampleCoin where
+instance LawfulCoin KhalaniCoin where
   theorem coinZero-spec :
     coinAmount coinZero === (0, coinZero)
   proof

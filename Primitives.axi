@@ -9,7 +9,7 @@ primitive
   whoami : Ledger -> Address * Ledger
 
   // Create a new cell owned by the specified account.
-  new : forall @(A : Type1), Address -> Ledger -> Address * (A -> Ledger)
+  new : forall (A : Type1), Address -> Ledger -> Address * (A -> Ledger)
 
   // Destroy an existing cell owned by the transaction originator
   // and move the cell's resources into the program.
@@ -19,21 +19,20 @@ primitive
   Ref : Type1 -> Type
 
   // Extract an address from a reference.
-  addressOf : forall (A : Type1), Ref A -> Address
+  addressof : forall (A : Type1), Ref A -> Address
 
-  // Try to "shake hands" with the shared cell at the given address
-  // to get a reference to it.
-  referenceOf : forall @(A : Type1),
+  // Try to convert an address to a reference.
+  referenceof : forall @(A : Type1),
     Address -> Ledger -> Option (Ref A) * Ledger
 
   // Create a new mutable shared cell.
-  share : forall @(A : Type1), Ledger -> Ref A * (A -> Ledger)
+  share : forall (A : Type1), Ledger -> Ref A * (A -> Ledger)
 
   // Load the contents of a shared cell and then store a new value.
   update : forall (A : Type1), Ref A -> Ledger -> A * (A -> Ledger)
 
   // Create a new immutable shared cell.
-  freeze : forall (A : Type), A -> Ledger -> Address * Ledger
+  freeze : forall (A : Type), Ledger -> Address * (A -> Ledger)
 
   // Read the contents of an immutable shared cell.
   peek : forall @(A : Type), Address -> Ledger -> Option A * Ledger

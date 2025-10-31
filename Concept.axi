@@ -1,5 +1,5 @@
 concept LawfulCoin (A : Type1) extends Coin A where
-  coinAmount' (x : A) : Nat =
+  noncomputable coinAmount' (x : A) : Nat =
     let (n, _) = coinAmount c in n
 
   law coinAmount-spec :

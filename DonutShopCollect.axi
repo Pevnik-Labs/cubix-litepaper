@@ -1,27 +1,32 @@
 from DonutShop import
   DonutShopOwnershipToken
   collectProfits
+  getMyShopRef
 
-ownershipTokenAddr : Address =
-  0x22bf7f5182a7d22decc11f2a8fd94e2c6834cebd2ab2b239cab598987454bc1b
+ownershipTokenAddr
+: Address
+= 0x22bf7f5182a7d22decc11f2a8fd94e2c6834cebd2ab2b239cab598987454bc1b
 
-main (ledger : Ledger) : Ledger =
+main
+: Ledger -> Ledger
+| ledger =>
   let
-    (myAddress, ledger) = whoami ledger in
+    (myAddress, ledger) = whoami ledger
     (optOwnershipToken, ledger) =
       delete DonutShopOwnershipToken ownershipTokenAddr ledger
   in
   match optOwnershipToken with
-  | none => ledger
   | some ownershipToken =>
     let
-      shopRef = ownershipToken.myShopRef
+      (shopRef, ownershipToken) = getMyShopRef ownershipToken
       (shop, returnShop) = update shopRef ledger
-      (profits, shop) = collectProfits ownershipToken shop
+      (profits, ownershipToken, shop) = collectProfits ownershipToken shop
       ledger = returnShop shop
-      (newCoinAddr, initCoinCell) = new ExampleCoin myAddress ledger
+      (newCoinAddr, initCoinCell) = new myAddress ledger
       ledger = initCoinCell profits
-      (newTokenAddr, initTokenCell) =
-        new DonutShopOwnershipToken myAddress ledger
+      (newTokenAddr, initTokenCell) = new myAddress ledger
+      ledger = initTokenCell ownershipToken
     in
-      initTokenCell ownershipToken
+    ledger
+  | none => ledger
+

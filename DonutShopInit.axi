@@ -1,12 +1,14 @@
 from DonutShop import
-  DonutShopOwnershipToken
   init
 
-main (ledger : Ledger) : Ledger =
+main
+: Ledger -> Ledger
+| ledger =>
   let
     (myAddress, ledger) = whoami ledger
-    (ownershipToken, ledger) = init 1000 ledger
-    (tokenAddress, initTokenCell) =
-      new DonutShopOwnershipToken myAddress ledger
+    (ownershipToken, ledger) = init ledger
+    (tokenAddress, initTokenCell) = new myAddress ledger
+    ledger = initTokenCell ownershipToken
   in
-    initTokenCell ownershipToken
+  ledger
+
