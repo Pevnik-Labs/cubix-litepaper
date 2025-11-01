@@ -17,7 +17,7 @@
 \usepackage{tabularx}
 \usepackage{tikz}
 \usepackage[t1]{sourcecodepro}
-\usepackage[title, toc, page]{appendix}
+\usepackage[title]{appendix}
 \usetikzlibrary{arrows}
 
 \input{axi-listings-settings}
@@ -842,8 +842,11 @@ TODO
 
 \begin{appendices}
 
+% Display "Appendix <letter>: ..." as the appendix title.
 \makeatletter
-\renewcommand{\@seccntformat}[1]{\appendixname~\csname the#1\endcsname: }
+\renewcommand{\@seccntformat}[1]{%
+  \@ifundefined{#1name}{}{\csname #1name\endcsname~}%
+  \csname the#1\endcsname: }
 \makeatother
 
 \section{Overview of Axi}
@@ -911,7 +914,7 @@ Equality is handled as in Martin-Löf Type Theory -- proved by reflexivity and e
 
 One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proof term style}, similar to how proofs look in Agda and Idris (as well as Coq's and Lean's manually written proof terms), or in a \textit{tactic style}, similar to how proofs usually look in Coq or Lean. The difference between Axi and languages that also support both styles, like Coq and Lean, is that in these languages each style is its own separate proof language, whereas in Axi there is a single proof language which, thanks to a clever parser, can be formatted either like terms or like tactics. This feature will make it easier to accomodate computer scientists and mathematicians familiar with either of the aforementioned languages.
 
-\textbf{Concepts -- traits in logic}. Last but not least, the logic can not only talk and reason about the traits we met in the programming layer -- it also introduces the richer and more powerful construct called \textit{concepts}. Concepts extend traits with specifications, i.e. properties expected to be true of the trait's constants and functions. When implementing a concept, the programmer must also provide proofs of the specifications. Thus concepts let programmers precisely define what is expected of trait implementations.
+\textbf{Concepts -- traits in logic}. Last but not least, the logic can not only talk and reason about the traits from the programming layer -- it also introduces the richer and more powerful construct called \textit{concepts}. Concepts extend traits with specifications, i.e. properties expected to be true of the trait's constants and functions. When implementing a concept, the programmer must also provide proofs of the specifications. Thus concepts let programmers precisely define what is expected of trait implementations.
 
 \newpage
 
@@ -965,7 +968,7 @@ In lines 14-15 we implement \code{coinMerge}. It takes two arguments of type \co
 
 In lines 17-19 we implement \code{coinAmount}. It takes an argument \code{c} of type \code{KhalaniCoin} and returns a tuple whose first component is a natural number and whose secnd component is an \code{KhalaniCoin}. First, in line 18, we consume the coin \code{c} by peeking at its \code{amount} field, which then gets named \code{n}. In line 19, we build the return tuple -- the first component is just \code{n}, whereas the second component is a record whose \code{amount} field is \code{n}. Note that the latter is exactly the same thing as the initial coin \code{c}, but we cannot directly return \code{c} as the secnd component, because it must be used exactly once and we have already used it when checking its \code{amount}.
 
-Last but not least, in lines 21-30 we implement \code{coinSplit}. It takes two argument, \code{askedAmount} and \code{c} of type \code{KhalaniCoin}. First, in line 23, we consume \code{c} to check its amount and store it in \code{n}. Then on line 24 we check if \code{n} is big enough for the split to succeed. If it does, on lines 26-28 we return a tuple whose first component is a coin whose amount is the \code{askedAmount} (wrapped in \code{some} to indicate success) and whose second component is a coin whose amount is \code{n} minus the \code{askedAmount} that went to the other coin. If \code{n} is not big enough, we return a tuple whose first component is \code{none} (to indicate failure) and whose second component is a coin whose amount is \code{n}, i.e. a coin that is the same as the original coin \code{c}.
+Last but not least, in lines 21-30 we implement \code{coinSplit}. It takes two arguments, \code{askedAmount} and \code{c} of type \code{KhalaniCoin}. First, in line 23, we consume \code{c} to check its amount and store it in \code{n}. Then on line 24 we check if \code{n} is big enough for the split to succeed. If it does, on lines 26-28 we return a tuple whose first component is a coin whose amount is the \code{askedAmount} (wrapped in \code{some} to indicate success) and whose second component is a coin whose amount is \code{n} minus the \code{askedAmount} that went to the other coin. If \code{n} is not big enough, we return a tuple whose first component is \code{none} (to indicate failure) and whose second component is a coin whose amount is \code{n}, i.e. a coin that is the same as the original coin \code{c}.
 
 \begin{example}{A simple proof}
 
