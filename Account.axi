@@ -1,59 +1,64 @@
-record SimplePayload : Type where
+record TransactionMetadata : Type where
+  protocolVersion : Nat
+  accountAddress : Address // "principal"
   nonce : Nat
-  gasLimit : GasLimit
-  gasPrice : GasPrice
-  payment : Address
-  action : ElaboratedModule
+  targetEpoch : Nat
+  expiration : Nat
+  ancestors : List TransactionHash
+
+record TransactionBatch : Type where
+  metadata : TransactionMetadata
+  payload : Bytes
   signature : Bytes
 
-record VanillaTransaction : Type where
-  protocolVersion : Nat
-  accountAddress : Address
-  rawPayload : Bytes
-
 record SelfSpawnTransaction : Type where
-  protocolVersion : Nat
-  accountAddress : Address
+  metadata : TransactionMetadata
   paymentAddress : Address
-  constructorCall : ConstructorCall
+  constructorCall : FunctionCall
+
+record GasInfo : Type where
+  gasLimit : GasLimit
+  gasPrice : GasPrice
+  gasPayment : List Address
 
 trait Account (A : Type1) where
-  Payload : Type
-  parse :
+  Action : Type
+  verifyTransactionBatch :
     forall
-    @(bytes : Bytes),
+    @(transactionBatch : TransactionBatch)
     @(account : A),
-    Option Payload * A
-  Nonce : Type
-  happensBefore : Nonce -> Nonce -> Option Bool
-  nonce : Payload -> Nonce
-  verify :
+    Option (GasInfo * List Action) * Singleton A account
+  buildTransaction :
     forall
-    @(payload : Payload)
-    @(account : A),
-    Option (GasLimit * GasPrice * Address) * A
-  transact :
-    forall
-    @(payload : Payload)
-    @(gasLimit : GasLimit)
-    @(gasLimit : GasPrice)
-    @(account : A),
-    ElaboratedModule * A
+    @(action : Action)
+    @(account : A)
+    @(ledger : Ledger),
+    ElaboratedScript * A * Ledger
+
+primitive
+  Singleton : forall @(A : Type1) @(object : A), Type1
+  fromSingleton : forall (A : Type1) @(object : A), 
+  Const : Type1 -> Type
+  select : forall (A : Type1) (B : Type1),
+    Box (A -> B * (B -> A)) -> Option (Box (Const A -> Const B))
 
 trait HasTransfer (A : Type1) where
   transfer : forall (B : Type1) [Typeable B],
     A -> Either A (Address * (B -> A))
 
 primitive
+  ElaboratedPackage : Type
   deploy : ElaboratedPackage -> Ledger -> Address * Ledger
-  packageof : Address -> Ledger -> Option ElaboratedPackage * Ledger
-  modulesof : ElaboratedPackage -> List ElaboratedModule
+  loadPackage : Address -> Ledger -> Option ElaboratedPackage * Ledger
+  packageAddress : ElaboratedPackage -> Address
+  ElaboratedModule : Type
+  packageModules : ElaboratedPackage -> List ElaboratedModule
   readModule : Bytes -> ElaboratedModule
-  simpleMain : Code (Ledger -> Ledger) -> ElaboratedModule
+  simpleMain : Quote (Ledger -> Ledger) -> ElaboratedScript
 
 primitive
-  eval : forall (A : Type1), Code A -> A
-  dynamicCall : 
+  eval : forall (A : Type1), Quote A -> A
+  dynamicCall : FunctionCall -> Ledger -> Ledger
 
 data Dynamic : Type1 where
   toDynamic : forall (A : Type1) [Typeable A], A -> Dynamic
