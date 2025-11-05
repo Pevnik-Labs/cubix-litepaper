@@ -23,24 +23,18 @@ record GasInfo : Type where
 
 trait Account (A : Type1) where
   Action : Type
+  // 'verifyTransactionBatch' has to return the account unchanged
   verifyTransactionBatch :
     forall
     @(transactionBatch : TransactionBatch)
     @(account : A),
-    Option (GasInfo * List Action) * Singleton A account
+    Option (GasInfo * List Action) * A
   buildTransaction :
     forall
     @(action : Action)
     @(account : A)
     @(ledger : Ledger),
     ElaboratedScript * A * Ledger
-
-primitive
-  Singleton : forall @(A : Type1) @(object : A), Type1
-  fromSingleton : forall (A : Type1) @(object : A), 
-  Const : Type1 -> Type
-  select : forall (A : Type1) (B : Type1),
-    Box (A -> B * (B -> A)) -> Option (Box (Const A -> Const B))
 
 trait HasTransfer (A : Type1) where
   transfer : forall (B : Type1) [Typeable B],
