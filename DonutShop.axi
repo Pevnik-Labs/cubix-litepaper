@@ -7,8 +7,8 @@ module DonutShop where
 export
   init
   buyDonut
-  getMyShopRef
   collectProfits
+  getMyShopRef
 
 // Donut - a simple purchasable object. It can be used at most once.
 record Donut : Type? where

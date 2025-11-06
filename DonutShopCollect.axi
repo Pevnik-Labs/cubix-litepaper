@@ -11,7 +11,7 @@ main
 : Ledger -> Ledger
 | ledger =>
   let
-    (myAddress, ledger) = whoami ledger
+    (myAccountRef, ledger) = whoami ledger
     (optOwnershipToken, ledger) =
       delete DonutShopOwnershipToken ownershipTokenAddr ledger
   in
@@ -23,18 +23,9 @@ main
       (shop, returnShop) = update shopRef ledger
       (profits, ownershipToken, shop) = collectProfits ownershipToken shop
       ledger = returnShop shop
+      (newCoinAddr, initCoinCell) = new myAccountRef ledger
+      ledger = initCoinCell profits
+      (newTokenAddr, initOwnershipTokenCell) = new myAccountRef ledger
+      ledger = initOwnershipTokenCell ownershipToken
     in
-    match new @KhalaniCoin myAddress ledger with
-    | left ledger => ledger
-    | right (newCoinAddr, initCoinCell) =>
-      let
-        ledger = initCoinCell profits
-      in
-        match new @DonutShopOwnershipToken myAddress ledger with
-        | left ledger => ledger
-        | right (newTokenAddr, initTokenCell) =>
-          let
-            ledger = initTokenCell ownershipToken
-          in
-          ledger
-
+    ledger
