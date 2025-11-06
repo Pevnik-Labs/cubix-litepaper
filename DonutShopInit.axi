@@ -8,8 +8,12 @@ main
     (myAddress, ledger) = whoami ledger
     price = 1000
     (ownershipToken, ledger) = init price ledger
-    (tokenAddress, initTokenCell) = new myAddress ledger
-    ledger = initTokenCell ownershipToken
   in
-  ledger
+  match new myAddress ledger with
+  | Left ledger => ledger
+  | Right (tokenAddress, initTokenCell) =>
+    let
+      ledger = initTokenCell ownershipToken
+    in
+    ledger
 

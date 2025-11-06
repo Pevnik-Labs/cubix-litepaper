@@ -53,6 +53,12 @@ primitive
 primitive
   eval : forall (A : Type1), Quote A -> A
   dynamicCall : FunctionCall -> Ledger -> Ledger
+  // Modify a private cell without changing its address.
+  modify : forall @(A : Type1), Address -> Ledger ->
+    Either Ledger (A * (A -> Ledger))
+  // Read a private cell.
+  read : forall @(A : Type1), Address -> Ledger ->
+    Option (Box0 A) * Ledger
 
 data Dynamic : Type1 where
   toDynamic : forall (A : Type1) [Typeable A], A -> Dynamic

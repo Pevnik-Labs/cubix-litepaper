@@ -28,14 +28,20 @@ main
         (shop, returnShop) = update shopRef ledger
         (optDonut, changeCoin, shop) = buyDonut paymentCoin shop
         ledger = returnShop shop
-        (newCoinAddr, initCoinCell) = new myAddress ledger
-        ledger = initCoinCell changeCoin
       in
-      match optDonut with
-      | none => ledger
-      | some donut =>
-        let
-          (newDonutAddr, initDonutCell) = new myAddress ledger
-          ledger = initDonutCell donut
+      match new myAddress ledger with
+      | Left ledger => ledger
+      | Right (newCoinAddr, initCoinCell) =>
+        let 
+          ledger = initCoinCell changeCoin
         in
-        ledger
+        match optDonut with
+        | none => ledger
+        | some donut =>
+          match new myAddress ledger with
+          | Left ledger => ledger
+          | Right (newDonutAddr, initDonutCell) =>
+            let
+              ledger = initDonutCell donut
+            in
+            ledger

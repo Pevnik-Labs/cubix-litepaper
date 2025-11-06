@@ -9,7 +9,8 @@ primitive
   whoami : Ledger -> Address * Ledger
 
   // Create a new cell owned by the specified account.
-  new : forall (A : Type1), Address -> Ledger -> Address * (A -> Ledger)
+  new : forall (A : Type1), Address -> Ledger ->
+    Either Ledger (Address * (A -> Ledger))
 
   // Destroy an existing cell owned by the transaction originator
   // and move the cell's resources into the program.

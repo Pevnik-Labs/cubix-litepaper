@@ -23,10 +23,18 @@ main
       (shop, returnShop) = update shopRef ledger
       (profits, ownershipToken, shop) = collectProfits ownershipToken shop
       ledger = returnShop shop
-      (newCoinAddr, initCoinCell) = new myAddress ledger
-      ledger = initCoinCell profits
-      (newTokenAddr, initTokenCell) = new myAddress ledger
-      ledger = initTokenCell ownershipToken
     in
-    ledger
+    match new myAddress ledger with
+    | Left ledger => ledger
+    | Right (newCoinAddr, initCoinCell) =>
+      let
+        ledger = initCoinCell profits
+      in
+        match new myAddress ledger with
+        | Left ledger => ledger
+        | Right (newTokenAddr, initTokenCell) =>
+          let
+            ledger = initTokenCell ownershipToken
+          in
+          ledger
 
