@@ -24,15 +24,15 @@ main
       (profits, ownershipToken, shop) = collectProfits ownershipToken shop
       ledger = returnShop shop
     in
-    match new myAddress ledger with
-    | Left ledger => ledger
-    | Right (newCoinAddr, initCoinCell) =>
+    match new @KhalaniCoin myAddress ledger with
+    | left ledger => ledger
+    | right (newCoinAddr, initCoinCell) =>
       let
         ledger = initCoinCell profits
       in
-        match new myAddress ledger with
-        | Left ledger => ledger
-        | Right (newTokenAddr, initTokenCell) =>
+        match new @DonutShopOwnershipToken myAddress ledger with
+        | left ledger => ledger
+        | right (newTokenAddr, initTokenCell) =>
           let
             ledger = initTokenCell ownershipToken
           in

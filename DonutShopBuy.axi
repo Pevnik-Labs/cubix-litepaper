@@ -1,4 +1,5 @@
 from DonutShop import
+  Donut
   DonutShop
   buyDonut
 
@@ -29,18 +30,18 @@ main
         (optDonut, changeCoin, shop) = buyDonut paymentCoin shop
         ledger = returnShop shop
       in
-      match new myAddress ledger with
-      | Left ledger => ledger
-      | Right (newCoinAddr, initCoinCell) =>
-        let 
+      match new @KhalaniCoin myAddress ledger with
+      | left ledger => ledger
+      | right (newCoinAddr, initCoinCell) =>
+        let
           ledger = initCoinCell changeCoin
         in
         match optDonut with
         | none => ledger
         | some donut =>
-          match new myAddress ledger with
-          | Left ledger => ledger
-          | Right (newDonutAddr, initDonutCell) =>
+          match new @Donut myAddress ledger with
+          | left ledger => ledger
+          | right (newDonutAddr, initDonutCell) =>
             let
               ledger = initDonutCell donut
             in

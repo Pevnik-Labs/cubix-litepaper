@@ -1,4 +1,5 @@
 from DonutShop import
+  DonutShopOwnershipToken
   init
 
 main
@@ -9,9 +10,9 @@ main
     price = 1000
     (ownershipToken, ledger) = init price ledger
   in
-  match new myAddress ledger with
-  | Left ledger => ledger
-  | Right (tokenAddress, initTokenCell) =>
+  match new @DonutShopOwnershipToken myAddress ledger with
+  | left ledger => ledger
+  | right (tokenAddress, initTokenCell) =>
     let
       ledger = initTokenCell ownershipToken
     in

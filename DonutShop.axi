@@ -61,19 +61,19 @@ buyDonut (payment : KhalaniCoin) (shop : DonutShop)
     in
     (some donut, change, newShop)
 
-// Read shop reference from an ownership token
-getMyShopRef (ownership : DonutShopOwnershipToken)
-: DonutShop * DonutShopOwnershipToken
-= (token.myShopRef, token)
-
 // Collect profits from the shop (succeeds only for the owner).
 collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
 : KhalaniCoin * DonutShopOwnershipToken * DonutShop
 = if addressof ownership.myShop == shop.thisShop then
     let
       profits = shop.balance
-      shop = record shop where balance = coinZero
+      newShop = record shop where balance = coinZero
     in
-    (profits, ownership, shop)
+    (profits, ownership, newShop)
   else
     (coinZero, ownership, shop)
+
+// Read shop reference from an ownership token
+getMyShopRef (ownership : DonutShopOwnershipToken)
+: Ref DonutShop * DonutShopOwnershipToken
+= (token.myShopRef, token)
