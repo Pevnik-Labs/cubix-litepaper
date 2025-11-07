@@ -14,7 +14,7 @@ main
 : Ledger -> Ledger
 | ledger =>
   let
-    (myAccountRef, ledger) = whoami ledger
+    (myAccountRef, ledger) = transactor ledger
     (optShopRef, ledger) = referenceof DonutShop shopAddr ledger
   in
   match optShopRef with

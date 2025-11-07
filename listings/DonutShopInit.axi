@@ -5,7 +5,7 @@ main
 : Ledger -> Ledger
 | ledger =>
   let
-    (myAccountRef, ledger) = whoami ledger
+    (myAccountRef, ledger) = transactor ledger
     price = 1000
     (ownershipToken, ledger) = init price ledger
     (tokenAddress, initOwnershipTokenCell) = new myAccountRef ledger

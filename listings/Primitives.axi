@@ -19,7 +19,7 @@ primitive
     Address -> Ledger -> Option (Ref A) * Ledger
 
   // Return the address that signed the currently executed transaction.
-  whoami : Ledger -> Ref Account * Ledger
+  transactor : Ledger -> Ref Account * Ledger
 
   // Create a new cell owned by the specified account.
   new : forall (A : Type1), Ref Account -> Ledger -> Address * (A -> Ledger)

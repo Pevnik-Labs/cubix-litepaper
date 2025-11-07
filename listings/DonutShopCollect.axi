@@ -11,7 +11,7 @@ main
 : Ledger -> Ledger
 | ledger =>
   let
-    (myAccountRef, ledger) = whoami ledger
+    (myAccountRef, ledger) = transactor ledger
     (optOwnershipToken, ledger) =
       delete DonutShopOwnershipToken ownershipTokenAddr ledger
   in
