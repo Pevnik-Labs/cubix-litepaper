@@ -1,4 +1,5 @@
 \documentclass[a4paper]{article}
+\usepackage[a4paper, total={6in, 9.5in}]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[UKenglish]{babel}
@@ -702,18 +703,16 @@ Intent-driven processing can be seen as a far-reaching generalization of the dec
 \subsubsection{Intent-based processing vocabulary}
 
 \begin{itemize}
-  \item 
-- \textbf{Intent}: a specification of the desired effect/state of the blockchain; an intent is created by a user and usually has a form of a digitally signed document
-- \textbf{Filling an intent}: materializing the desired outcome (as specified by an intent); this is the work that a solver does
-- \textbf{Intentbook}: registry of intents (usually stored on-chain)
-- \textbf{Solver}: a software agent capable of filling (some) intents
-- \textbf{Solving}: overall activities done by a solver (includes participating in counterparty selection protocols, filling, settlement and off-chain activities)
-- \textbf{Counterparty selection}: a process of deciding which solver will be given the privilege to fill a given intent
-- \textbf{Selected solver}: the solver that got selected via the counterparty selection process
-- \textbf{Settlement}: the final processing of an intent where the successful filling is confirmed and the reward is paid to the selected
-- \textbf{Reward}: certain amount of money (paid in on-chain assets) that the selected solver gets for filling an intent
-- \textbf{Fiasco}: the situation where the winning solver failed to fill an intent before the specified deadline
-- \textbf{Rollback}: the process of returning the funds to the intent’s creator (if any funds were actually locked) after fiasco
+  \item \textbf{Intent}: a specification of the desired effect/state of the blockchain; an intent is created by a user and usually has a form of a digitally signed document
+  \item \textbf{Filling an intent}: materializing the desired outcome (as specified by an intent); this is the work that a solver does
+  \item \textbf{Intentbook}: registry of intents (usually stored on-chain)
+  \item \textbf{Solver}: a software agent capable of filling (some) intents
+  \item \textbf{Solving}: overall activities done by a solver (includes participating in counterparty selection protocols, filling, settlement and off-chain activities)
+  \item \textbf{Counterparty selection}: a process of deciding which solver will be given the privilege to fill a given intent
+  \item \textbf{Settlement}: the final processing of an intent where the successful filling is confirmed and the reward is paid to the selected
+  \item \textbf{Reward}: certain amount of money (paid in on-chain assets) that the selected solver gets for filling an intent
+  \item \textbf{Fiasco}: the situation where the winning solver failed to fill an intent before the specified deadline
+  \item \textbf{Rollback}: the process of returning the funds to the intent’s creator (if any funds were actually locked) after fiasco
 \end{itemize}
 
 \subsubsection{Intent markets}
