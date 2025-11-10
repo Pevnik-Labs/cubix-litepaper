@@ -24,7 +24,7 @@ primitive
   // Create a new cell owned by the specified account.
   new : forall (A : Type1), Ref Account -> Ledger -> Address * (A -> Ledger)
 
-  // Destroy an existing cell owned by the transaction originator
+  // Destroy an existing cell owned by the transactor
   // and move the cell's resources into the program.
   delete : forall @(A : Type1), Address -> Ledger -> Option A * Ledger
 

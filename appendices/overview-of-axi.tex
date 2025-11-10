@@ -1,0 +1,68 @@
+\section{Overview of Axi}
+
+Axi (pronounced ``Axee'') is the smart contract language of Khalani. It is a purely functional programming language with a strong, static, linear type system and support for formal reasoning about programs in classical higher-order logic. Among mainstream programming languages, it is most similar to Haskell (in spirit) and OCaml (syntactically). It was also heavily inspired by proof assistants based on type theory, like Coq, Lean and Agda.
+
+In this appendix we will have a brief, not too technical look at the philosophy and language features of Axi, together with a few simple code examples.
+
+\subsection{Philosophy}
+
+Axi's architecture is unique in that the language is split into two strictly separate layers: the programming layer and the logic layer.
+
+\textbf{The Programming Layer} of Axi is a purely functional language based on higher-order polymorphic lambda calculus (aka System \(F_{\omega}\)) with quantitative typing (linear, affine, relevant and unrestricted types) and algebraic data types. It aims to make programming pleasant and comprehending smart contract code easy, while providing essential guarantees to all on-chain code:
+
+\begin{itemize}
+  \item \textbf{Type safety}. Well-typed programs can't go wrong, i.e. they can't crash, can't perform nonsensical operations like adding a number and a string, and can't result in any other runtime type error.
+  \item \textbf{Resource safety}. Well-typed programs can't delete resources that are not supposed to be deletable and can't create resources out of thin air nor by duplication, unless authorized by resource type's API.
+  \item \textbf{Memory safety}. Well-typed programs can't result in memory errors, like writing to a random memory location, nor can they have memory leaks.
+  \item \textbf{Ownership safety}. Well-typed programs can't access resources stored on ledger unless authorized by an account owner or an interaface of a on-chain service, nor can they access resources in destroyed or nonexistent ledger entries.
+\end{itemize}
+
+\textbf{The Logic Layer} of Axi is a language for reasoning about Axi programs in classical higher-order logic. It allows expressing arbitrarily complex mathematical properties, thus giving programmers the ability to precisely specify the business logic and behaviour of their programs. These properties can then be either tested with random inputs before deployment, checked for concrete inputs at runtime, or proved for all possible inputs using logic. The last of these, proving, provides guarantees much more powerful than those of the type system alone, while being as credible and trustworthy as the type system. The use of the logic layer is entirely optional, i.e. programmers are never forced to engage with any part of it, although competition will encourage programmers to do so in the hopes of outcompeting other programmers' smart contracts by providing stronger guarantees.
+
+\textbf{Strict separation}. In Axi, logic can reason about programs, but programs cannot manipulate logical entities, like theorems or proofs, at runtime. This one-way interaction keeps the language relatively simple, while still making it possible to express almost all functional programming idioms and all possible mathematical properties and their proofs.
+
+\textbf{Guarantees about guarantees}. We not only want Axi to provide strong guarantees about its programs, but we also want to provide strong guarantees about Axi itself. We plan to use the Coq proof assistant to formally verify significant portions of Axi's metatheory, including the aforementioned properties of type and resource safety, as well as the consistency of Axi's logic. We are also considering formal verification of the reference implementation of Axi. The goal of these efforts is to ensure that the guarantees that Axi provides are trustworthy and will stay so forever, as long as the consensus protocol is followed.
+
+\subsection{Language features}
+
+In this section we will take a closer look at Axi's language features.
+
+\subsubsection{The Programming Layer}
+
+Axi is, at its core, a purely functional programming language. It thus supports all the usual features of such languages:
+
+\begin{itemize}
+  \item \textbf{Purity and immutability}. In Axi, all values are pure and immutable -- they cannot be null, cannot throw exceptions and once created, they cannot be changed. Each variable has asssigned its value once (though we allow name shadowing). This facilitates reasoning about and comprehending code, thus rendering Axi smart contracts transparent and auditable.
+  \item \textbf{First-class, higher-order and anonymous functions}. Functions are first class citizens. They can be passed as arguments to other functions, returned from other functions as results and created on the fly. Axi encourages a programming style in which data is processed by pipelines built from basic building blocks like mapping, reducing, filtering and so on.
+  \item \textbf{Algebraic data types and exhaustive pattern-matching}.
+  Axi makes it easy to model the problem domain with disjoint unions and operate on these through pattern matching. This allows for writing code whose many invariants are clear from the shape of the types, decluttering the code from clunky boolean flags and cascades of conditional expressions.
+  \item \textbf{Strong static type system}. Axi's type system makes it easy to work with high-level abstractions, like merkle trees or state machines, instead of low-level primitives, like integers or byte arrays. It is lightweight, not placing too many demands on the programmer, but still catches the most egregious errors -- it can easily protect programmers from confusing with each other such objects as an integer, a string, an address, a transaction hash, a token amount and a cryptographic secret.
+  \item \textbf{Polymorphism and traits}. Axi's type system features polymorphism (also known as ``generics'') as well as traits inspired by Haskell's type classes (but named after Rust's traits). These features make it easy to implement data structures and functions that work for all types that support a certain behaviour, for example a hash map that works for all types of ERC-20-compliant tokens bridged from an external blockchain.
+\end{itemize}
+
+\textbf{Quantitative typing}. The standard features of purely functional programming is not everything that Axi has to offer. The killer feature, as far as the programming layer is concerned, are \emph{quantitative types}. Quantitative types control the variable usage discipline: which values are allowed to be copied and which are allowed to be left unused. This aspect of Axi's type system was inspired by linear logic and its cousin, quantitative type theory, and is an improvement upon an analogous feature of the type system of Move, the programming language of the Sui and Aptos blockchains.
+
+In an Axi program, every variable is assigned its \textit{quantity}, which can be either: zero, one, at most one, at least one, unrestricted. The variable's quantity determines how many times it can be used in the program, with too many or too few uses resulting in a type error. For example, the typical variable holding an NFT will have a quantity of one, forcing the program to do something with the NFT before it terminates: maybe send the NFT to the transactor, maybe trade it for something else and handle that something else properly according to its quantity, or maybe send it to somebody as a gift. What the program cannot do in such a situation is forget the NFT and do nothing with it, effectively making it ``lost'' in the guts of the chain. It also cannot copy the NFT and have two instead of just the original one.
+
+To make the programmers' lives easier, every type is also assigned its ``default'' quantity. Every variable will be assigned the default quantity of its type unless the programmer decides otherwise. An important piece of terminology: a type whose default quantity is unrestricted is called a \textit{data type}, whereas a type whose default quantity is either one, at least one or at most one, is called a \textit{resource type}. There are no types whose default quantity is zero. Elements of data types are called data, whereas elements of resource types are called resources.
+
+\textbf{Traits}. A trait is a way of representing an interface satisfied by a type. The definition of a trait consists of a bunch of declarations of constants and functions. The programmer can make a type an \textit{instance} of a trait by implementing the trait's constants and functions for this type.
+
+\subsubsection{The Logic Layer}
+
+Axi's logic layer consists of typed classical higher-order logic with equality whose domains of discourse are the types from the programming layer. More precisely, this means the logic has:
+
+\begin{itemize}
+  \item \textbf{Propositional connectives and constants}. Standard propositional connectives ($\Longrightarrow$, $\land$, $\lor$, $\Longleftrightarrow$, $\sim$) and constants ($\top$, $\bot$) can be used to build up complex propositions from simpler ones.
+  \item \textbf{Quantification over terms and types}. Axi supports universal and existential quantification. We can quantify over terms of a given type ($\forall x : A, \dots$) as well as over types themselves ($\forall A : \texttt{Type}, \dots$), no matter whether we're dealing with data, resources or programs.
+  \item \textbf{Higher-order quantification}. We can also quantify over logical entities like propositions ($\forall P : \texttt{Prop}, \dots$), predicates ($\forall P : A \rightarrow \texttt{Prop}, \dots$), relations ($\forall R : A \rightarrow A \rightarrow \texttt{Prop}, \dots$), logical connectives ($\forall C : \texttt{Prop} \rightarrow \texttt{Prop} \rightarrow \texttt{Prop}, \dots$) or even quantifiers themselves ($\forall Q : (A \rightarrow \texttt{Prop}) \rightarrow \texttt{Prop}, \dots$). This ability of logic to talk not only about the underlying programming language, but also about itself, gives it great expressive power and allows it to make use of all of mathematics when reasoning about the behaviour of programs.
+  \item \textbf{Equality}. The built-in equality relation ($=$) makes it possible to precisely reason about programs' input-output behaviour.
+\end{itemize}
+
+Proving is carried out in a proof language based on the Curry-Howard correspondence: proofs of implications and universal quantifiers are like functions, proofs of existential quantifiers and conjunctions are like pairs, proofs of disjunctions are like disjoint union constructors, etc. Negation and biconditional are handled as in intuitionistic logic -- instead of being primitives, negation ($\sim P$) is a shorthand for an implication into falsehood ($P \implies \bot$), whereas biconditional ($P \iff Q$) is a shorthand for a conjunction of two implications ($(P \implies Q) \land (Q \implies P)$). The principle of \textit{proof by contradiction}, which allows to prove ($(\sim P \implies \bot) \implies P$) for any proposition $P$, makes the logic classical and thus intimately familiar to all mathematicians.
+
+Equality is handled as in Martin-Löf Type Theory -- proved by reflexivity and eliminated with the so-called J rule, which is a principle that allows to substitute equals for equals in the remaining part of the proof. Because proofs are hard to write using these primitives, Axi provides a convenient feature called \textit{chaining}, which allows reasoning with long chains of equations by writing down and justifying each step separately, similarly to how equality is usually handled with pen and paper. Besides equality, this feature also supports implications, biconditionals and other transitive relations.
+
+One novel feature that distinguishes our proof language is that the proofs can be presented in two styles: either in a \textit{proof term style}, similar to how proofs look in Agda and Idris (as well as Coq's and Lean's manually written proof terms), or in a \textit{tactic style}, similar to how proofs usually look in Coq or Lean. The difference between Axi and languages that also support both styles, like Coq and Lean, is that in these languages each style is its own separate proof language, whereas in Axi there is a single proof language which, thanks to a clever parser, can be formatted either like terms or like tactics. This feature will make it easier to accomodate computer scientists and mathematicians familiar with either of the aforementioned languages.
+
+\textbf{Concepts -- traits in logic}. Last but not least, the logic can not only talk and reason about the traits from the programming layer -- it also introduces the richer and more powerful construct called \textit{concepts}. Concepts extend traits with specifications, i.e. properties expected to be true of the trait's constants and functions. When implementing a concept, the programmer must also provide proofs of the specifications. Thus concepts let programmers precisely define what is expected of trait implementations.
