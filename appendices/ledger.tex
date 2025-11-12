@@ -1,30 +1,16 @@
 \section{Interacting with the ledger in Axi}
 
-In this appendix, we will see how Axi programs can interact with Khalani's ledger. First we will discuss a greatly simplified ledger model which we'll use in the remaining code examples. It is a specialization of the ledger model described in the main text to the most basic default case. We will also look at the primitive (built-in) types and functions that represent it in Axi. Then we will give an overview of Axi's interaction with the ledger, focusing on the ``lifecycle'' of resources. Finally we will discuss a slightly longer example of an on-chain service, together with example transactions that set this service up and use it.
+In this appendix, we will see how Axi programs can interact with Khalani's ledger. We will start with an overview of the ``life cycle'' of resources, which is a mental model of what can happen to resources (and how) both when they are on the ledger and when they are being used by a program. Then we will look at the primitive (built-in) types and functions that Axi uses for interacting with the ledger. Finally, we will discuss a slightly longer example of an on-chain service, together with example transactions that set it up and use it.
 
-\subsection{A simplified ledger model}
+\subsection{The resource life cycle}
 
-We will use the word \textit{ledger} to refer to the state of the blockchain. Things on the ledger have their addresses. The three kinds of addresses are \textit{account addresses}, \textit{package addresses} and \textit{cell addresses} (or just addresses for short).
-
-Account adresses are addresses that act as the identities of external actors. They allow them to interact with the blockchain, similarly to EOAs (Externally Owned Accounts) on Ethereum.
-
-All Axi code deployed to the ledger is stored in a big codebase, divided into \textit{packages}. Package addresses are means of locating these packages in this codebase. Packages are further subdivided into smaller units, called \textit{modules}, which hold definitions of types, traits, constants and functions.
-
-Data and resources on the ledger are stored in \textit{cells}. Each cell has an address and a type, and stores exactly one value of that type. Cells also have some metadata which won't concern us for now.
-
-Cells are either \textit{owned} or \textit{shared}. Owned cells have exactly one owner who is an account. Shared cells do not have an owner. Shared cells are further subdivided into \textit{mutable shared cells}, which contain resources and can be interacted with by anybody (any account or cell) according to the interface set by the package defining the cell's type, and \textit{immutable shared cells}, which contain data, but not resources, and can be read by everybody, but cannot be modified by anybody.
-
-The state of the ledger is modified by transactions. Every transaction has a \textit{transactor} (also called the \textit{transaction originator}) and a \textit{transaction body}. There are two types of transactions: \textit{code deploys} and \textit{ordinary transactions}. The body of a code deploy transaction is a package of Axi code. The body of an ordinary transaction is an Axi function that describes how to modify the ledger. Transactions also have some additional metadata which won't concern us here.
-
-\subsection{The resource lifecycle}
-
-A new resource type is created by a transaction that deploys a package of Axi code that contains the definition of this resource type. The only exceptions are built-in resource types, including Gas, the native coin used to pay transaction fees, which already exist at the genesis block. Because packages live on-chain forever and cannot be deleted, a resource type, once it comes to life, will also exist forever.
+Resource types can be divided into built-in and user-defined. The built-ins include gas, the native coin used to pay transaction fees. The built-ins exist right from the genesis block. A new user-defined resource type is created by a transaction that deploys a package of Axi code that contains its definition. Because packages live on-chain forever and cannot be deleted, a resource type, once it comes to life, will also exist forever.
 
 The life cycle of a particular resource, i.e. an element of some resource type, consists of three stages:
 
 \begin{itemize}
-  \item \textbf{Creation}. At some point the resource is created, in accordance with the interface of the package that contains the definition of the resource's type. After creation, the resource is placed on the ledger in a cell on its own or as a part of a bigger resource, owned by an account designated by its address, or in a shared cell.
-  \item \textbf{Transaction(s)}. The transactor, as the owner, can transfer her ownership of the resource freely. Resources in shared cells can be altered through the interface set by the defining package of the resource type of a shared cell.
+  \item \textbf{Creation}. At some point the resource is created, in accordance with the interface of the package that contains the definition of the resource's type. After creation, the resource is placed on the ledger either in an owned cell or in a shared cell. Note that it can be placed in the cell either on its own or as a part of a bigger, compound resource.
+  \item \textbf{Transactions}. The resource participates in transactions. Resources in owned cells can be freely transferred by their owner. Resources in shared cells can be interacted with through the interface set by the defining package of the cell's type.
   \item \textbf{Destruction (optional)}. If the defining package permits it, the resource might at some point be destroyed. Examples of destructible resources are stablecoins that are backed by an off-chain reserve, where a coin gets destroyed when its off-chain collateral is removed from the treasury, and a wrapper for an asset bridged from another blockchain, which gets destroyed when the external asset ceases to be bridged.
 \end{itemize}
 

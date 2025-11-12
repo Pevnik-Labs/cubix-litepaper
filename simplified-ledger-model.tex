@@ -1,0 +1,13 @@
+\subsection{A simplified ledger model}
+
+We will use the word \textit{ledger} to refer to the state of the blockchain. Things on the ledger have their addresses. The three kinds of addresses are \textit{account addresses}, \textit{package addresses} and \textit{cell addresses} (or just addresses for short).
+
+Account adresses are addresses that act as the identities of external actors. They allow them to interact with the blockchain, similarly to EOAs (Externally Owned Accounts) on Ethereum.
+
+All Axi code deployed to the ledger is stored in a big codebase, divided into \textit{packages}. Package addresses are means of locating these packages in this codebase. Packages are further subdivided into smaller units, called \textit{modules}, which hold definitions of types, traits, constants and functions.
+
+Data and resources on the ledger are stored in \textit{cells}. Each cell has an address and a type, and stores exactly one value of that type. Cells also have some metadata which won't concern us for now.
+
+Cells are either \textit{owned} or \textit{shared}. Owned cells have exactly one owner who is an account. Shared cells do not have an owner. Shared cells are further subdivided into \textit{mutable shared cells}, which contain resources and can be interacted with by anybody (any account or cell) according to the interface set by the package defining the cell's type, and \textit{immutable shared cells}, which contain data, but not resources, and can be read by everybody, but cannot be modified by anybody.
+
+The state of the ledger is modified by transactions. Every transaction has a \textit{transactor} (also called the \textit{transaction originator}) and a \textit{transaction body}. There are two types of transactions: \textit{code deploys} and \textit{ordinary transactions}. The body of a code deploy transaction is a package of Axi code. The body of an ordinary transaction is an Axi function that describes how to modify the ledger. Transactions also have some additional metadata which won't concern us here.
