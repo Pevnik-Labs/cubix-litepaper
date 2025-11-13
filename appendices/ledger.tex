@@ -28,35 +28,45 @@ As we can see, the resource lifecycle is determined by two orthogonal but comple
 
 In this section we will see how Khalani's ledger looks like from Axi's perspective. To do this, we will discuss the primitive (i.e. built-in) types and functions that Axi programs use to interact with the ledger.
 
-\begin{example}{Axi primitives for interacting with the ledger}
+\lstinputlisting{listings/Primitives/Ledger.axi}
 
-\lstinputlisting{listings/Primitives.axi}
-
-\end{example}
-
-The above code listing shows the most important Axi primitives for dealing with the ledger. \code{Ledger} is the type that represents (the current state of) the ledger. When we said that the body of an ordinary transaction is an ``arbitrary Axi program that transforms the ledger'', we meant precisely that it is a function of type \code{Ledger -> Ledger}.
+\code{Ledger} is the type that represents (the current state of) the ledger. When we said that the body of an ordinary transaction is an ``arbitrary Axi program that transforms the ledger'', we meant precisely that it is a function of type \code{Ledger -> Ledger}.
 
 Every function that interacts with the ledger takes (the current version of) the ledger as input and also returns (the new version of) the ledger as output. In general, the type of such a function is \code{A -> Ledger -> B * Ledger}, i.e. it takes a value of some type \code{A} and the ledger, and returns a value of some type \code{B} and the (updated) ledger.
 
 The transaction body will, in general, be a composition of many such functions. It will get the initial input of type \code{Ledger} from the transaction context and then pass it to the first of these functions, which will in turn pass it to the next one, and so on. Because \code{Ledger} is a linear type, the type system guarantees that values of this type must be used exactly once and cannot be copied nor deleted. This means that the ledger is acted upon and then passed further and further until the transaction body returns the final modified version of it. This is how all interaction with the ledger is represented in code.
 
+\lstinputlisting{listings/Primitives/transactor.axi}
+
 An example function that needs the ledger is \code{transactor}, which consumes the old ledger and returns a reference to the account which originated the current transaction (i.e. the transactor) together with a new ledger.
 
-\code{Address} is the data type of addresses, including both accounts and cell addresses. \code{Account} is the type of addresses that are known to be addresses of accounts.
+\lstinputlisting{listings/Primitives/Addresses.axi}
 
-\code{Ref} is a type constructor that turns resource types into data types that represent ``references'' to cells that contain this type of resource. The problem we want to solve is that, when interacting with shared cells, we don't know whether a shared cell with the given address exists, so we would need to check that first and handle the possible errors, but doing that over and over is tedious. As a solution, we perform a kind of ``handshake'' with the cell using the function \code{referenceof} which, if a cell with the given address exists, returns a reference to it. In practice, \code{Ref A} is just a wrapper around an \code{Address} that points to a shared cell that holds a value of type \code{A}. Besides shared cells, we also use \code{Ref} with \code{Account}s, which due to account abstraction also have their own cells. This is useful to make the type signature of \code{new} simpler.
+\code{Address} is the data type of addresses, including both accounts and cell addresses. \code{Account} is the type of addresses that are known to be addresses of accounts. \code{Ref} is a type constructor that turns resource types into data types that represent ``references'' to cells that contain this type of resource. The problem we want to solve is that, when interacting with shared cells, we don't know whether a shared cell with the given address exists, so we would need to check that first and handle the possible errors, but doing that over and over is tedious. As a solution, we perform a kind of ``handshake'' with the cell using the function \code{referenceof} which, if a cell with the given address exists, returns a reference to it. In practice, \code{Ref A} is just a wrapper around an \code{Address} that points to a shared cell that holds a value of type \code{A}. Besides shared cells, we also use \code{Ref} with \code{Account}s, which due to account abstraction also have their own cells. This is useful to make the type signature of \code{new} simpler.
 
-The function \code{addressof} returns the address when given the reference. The function \code{referenceof}, when given an address, together with the ledger, returns an optional reference, together with the ledger. If such a cell doesn't exist, the result is \code{none} (together with the new ledger). If it does, the result is \code{some ref} (together with the new ledger), where \code{ref} is the reference to the cell. 
+The function \code{addressof} returns the address when given the reference. The function \code{referenceof}, when given an address, together with the ledger, returns an optional reference, together with the ledger. If such a cell doesn't exist, the result is \code{none} (together with the new ledger). If it does, the result is \code{some ref} (together with the new ledger), where \code{ref} is the reference to the cell.
+
+\lstinputlisting{listings/Primitives/new.axi}
 
 \code{new} is a function that takes an account reference (the type argument is implicit), together with the ledger and creates a new cell on the ledger. It returns the address of the created cell together with a function of type \code{A -> Ledger}. This function is a ``setter'' for the cell -- when it is given a value of type \code{A}, it sets the cell contents to this value and then returns the new ledger. Note that the type \code{A -> Ledger} is linear, so the type system makes sure that it is called exactly once. Because of this, the cell can't be left empty, as well as it cannot be overwritten right after being created. This is a pattern that we will also see when creating and updating the shared cells.
 
+\lstinputlisting{listings/Primitives/delete.axi}
+
 \code{delete} is a function that takes a type \code{A} (note that the symbol \code{@} marks that this type argument must be given explicitly) and a cell address, together with the ledger, and returns an optional \code{A}, together with the new ledger. If the transactor is not the owner of the cell, or the value stored in the cell is not of type \code{A}, then the operation fails and the result is \code{none} (together with the new ledger). Otherwise the operation succeeds, the cell is destroyed and the result is \code{some a} (together with the new ledger), where \code{a} is the value that was stored in this cell.
+
+\lstinputlisting{listings/Primitives/share.axi}
 
 \code{share} is a function that takes just the ledger (the type argument is implicit), creates a new mutable shared cell, and returns the reference to the created cell, together with a setter function that, when given a value of type \code{A}, sets the cell's contents to this value and returns the new ledger.
 
+\lstinputlisting{listings/Primitives/update.axi}
+
 \code{update} is a function that takes a reference to a mutable shared cell, together with the ledger, and returns a value of some type \code{A} together with a setter function that, when given a value of type \code{A}, sets the cell's contents to this value and returns the new ledger. Because the type \code{A} is linear, we must use the returned value exactly once, and because the type \code{A -> Ledger} is also linear, we must call the setter with some \code{A}. In practice, this means that if the type \code{A} is abstract, everything we can do is modify the \code{A} we were given and then put it back into the cell by calling the setter.
 
+\lstinputlisting{listings/Primitives/freeze.axi}
+
 \code{freeze} is a function that takes just the ledger (the data type argument \code{A} is implicit), creates a new immutable shared cell, and returns the address of the created cell, together with a setter function that, when given a value of type \code{A}, sets the cell's contents to this value and returns the new ledger.
+
+\lstinputlisting{listings/Primitives/peek.axi}
 
 \code{peek} is a function that takes a type \code{A} and an address, together with the ledger, reads the contants of an immutable shared cell under this address, and returns an optional \code{A}, together with the new ledger. If the address does not point to an immutable shared cell, or the value stored in that cell is not of type \code{A}, then the operation fails and the result is \code{none} (together with the new ledger). Otherwise the operation succeeds and the result is \code{some a} (together with the new ledger), where \code{a} is the data stored in the cell.
 
