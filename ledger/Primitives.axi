@@ -5,8 +5,9 @@ primitive
   // Type of accounts, stored in account cells.
   Account : Type1
 
-  // Type of account tokens, usually stored a field of an account cells.
-  AccountToken : Type1
+  // The write-access to an account, usually stored as a field of an account cell.
+  // Required for modification and deletion of cells.
+  AccountToken : Type
 
   // A unique address of a cell.
   Address : Type
@@ -22,17 +23,19 @@ primitive
     Address -> Ledger -> Option (Ref A) * Ledger
 
   // Return the address that signed the currently executed transaction.
-  transactor : Ledger -> Ref Account * Ledger
+  transactor : Box0 Ledger -> Ref Account
 
   // Create a new cell owned by the specified account.
   new : forall (A : Type1), Ref Account -> Ledger -> Address * (A -> Ledger)
 
-  // Destroy an existing cell owned by the transactor
+  // Load the contents of an owned cell and then store a new value.
+  modify : forall (A : Type1),
+    AccountToken -> Address -> Ledger -> Ledger + A * (A -> Ledger)
+
+  // Destroy an existing owned cell
   // and move the cell's resources into the program.
   delete : forall @(A : Type1),
-    AccountToken -> Address -> Ledger -> AccountToken * Option A * Ledger
-
-  mask : (Ledger -> Ledger) -> Ledger -> Ledger
+    AccountToken -> Address -> Ledger -> Option A * Ledger
 
   // Create a new mutable shared cell.
   share : forall (A : Type1), Ledger -> Ref A * (A -> Ledger)
@@ -43,8 +46,8 @@ primitive
   // Create a new immutable shared cell.
   freeze : forall (A : Type), Ledger -> Address * (A -> Ledger)
 
-  // Read the contents of an immutable shared cell.
-  peek : forall @(A : Type), Address -> Ledger -> Option A * Ledger
+  // Read the contents of a cell.
+  peek : forall @(A : Type1), Address -> Ledger -> Option (Box0 A) * Ledger
 
 record TransactionMetadata : Type where
   protocolVersion : Nat
@@ -96,7 +99,7 @@ primitive
   ElaboratedModule : Type
   packageModules : ElaboratedPackage -> List ElaboratedModule
   readModule : Bytes -> ElaboratedModule
-  simpleMain : Quote (Ledger -> Ledger) -> ElaboratedScript
+  simpleMain : Quote (AccountToken * Ledger -> Ledger) -> ElaboratedScript
 
 primitive
   eval : forall (A : Type1), Quote A -> A
@@ -113,7 +116,7 @@ data Dynamic : Type1 where
 
 record MyAccount where
   ...
-  token : Option AccountToken
+  token : AccountToken
   vault : HashMap Address Dynamic
 
 instance Account MyAccount where

@@ -18,7 +18,7 @@ concept LawfulCoin (A : Type1) extends Coin A where
   law coinSplit-none :
     forall @(askedAmount : Nat) @(coin coin' : A),
       coinSplit askedAmount coin === (none, coin')
-        <-->
+        -->
       (askedAmount <= coinAmount' coin) === false
         /\
       coin === coin'
@@ -26,7 +26,7 @@ concept LawfulCoin (A : Type1) extends Coin A where
   law coinSplit-some :
     forall @(askedAmount : Nat) @(coin exact change : A),
       coinSplit askedAmount coin === (some exact, change)
-        <-->
+        -->
       (askedAmount <= coinAmount' coin) === true
         /\
       coinAmount' exact === askedAmount
