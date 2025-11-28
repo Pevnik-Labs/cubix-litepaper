@@ -20,6 +20,10 @@
 \usepackage[t1]{sourcecodepro}
 \usepackage[title]{appendix}
 \usetikzlibrary{arrows}
+\usepackage{enumitem}
+
+% Set globally for all lists
+\setlist{itemsep=2pt, parsep=2pt, topsep=3pt}
 
 \input{axi-listings-settings}
 
@@ -401,7 +405,7 @@ Suppose we started with four live cells:
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.4\textwidth]{graphics/ledger-1.png}
+  \includegraphics[width=0.2\textwidth]{graphics/ledger-1.png}
 \end{figure}
 
 Then the transaction \code{e823fa01} is executed. It has two inputs and one output. Cell \code{0a3f11} gets updated (so a new version of it is created). Cell \code{48a0c0} gets consumed (i.e. destroyed):
@@ -673,7 +677,7 @@ So we start with Alice who has a problem:
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{graphics/delegation-1.png}
+  \includegraphics[width=0.5\textwidth]{graphics/delegation-1.png}
 \end{figure}
 
 Alice wants to achieve certain business goal. However, for this to happen, Alice would need to contact both Charlie and Dylan. Charlie is a service or resource which Alice has access to. Dylan is a complex or access-restricted infrastructure, which is beyond Alice's reach.
@@ -682,14 +686,14 @@ Alice wants to solve her problem. She found a helper service Bob (hence we named
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{graphics/delegation-2.png}
+  \includegraphics[width=0.5\textwidth]{graphics/delegation-2.png}
 \end{figure}
 
 The missing element here is the ability to \textbf{delegate} Alice's access rights. She wants to temporarily lend Bob her ability to access Charlie, so that Bob can solve her problem.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{graphics/delegation-3.png}
+  \includegraphics[width=0.5\textwidth]{graphics/delegation-3.png}
 \end{figure}
 
 \subsubsection{Delegation in Khalani blockchain}
