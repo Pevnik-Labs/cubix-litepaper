@@ -67,7 +67,7 @@ Khalani is an attempt to design and prototype a next-generation blockchain archi
 
 \begin{itemize}
   \item purely functional programming on-chain
-  \item semantic transparency (there is only one ``canonical'' programming language on-chain -- Axi -- and every on-chain program is bundled with its source code)
+  \item semantic transparency (there is only one ``canonical'' programming language on-chain --- Axi --- and every on-chain program is bundled with its source code)
   \item resource-aware type system (also known as linear types)
   \item formal logic on-chain (i.e. the ability to formulate and prove theorems and bind them with on-chain programs)
   \item on-chain pub-sub and timers (i.e. proper event-based programming)
@@ -88,13 +88,13 @@ Caution: this \textit{litepaper} sketches only the key ideas from ongoing resear
 Blockchains have been around since 2009 (when Bitcoin was launched). Key milestones include:
 
 \begin{itemize}
-  \item 2013 -- understanding that decentralized money could be generalized to a decentralized computer
-  \item 2015 -- launch of Ethereum, the first widely adopted decentralized computer platform
-  \item 2020 -- the rise of proof-of-stake consensus protocols, promising lower energy use
-  \item 2022-2023 -- wider adoption of zk-rollups (e.g., mainnet launches of zkSync Era, Polygon zkEVM), based on the idea of \textit{zero-knowledge proofs}
+  \item 2013 --- understanding that decentralized money could be generalized to a decentralized computer
+  \item 2015 --- launch of Ethereum, the first widely adopted decentralized computer platform
+  \item 2020 --- the rise of proof-of-stake consensus protocols, promising lower energy use
+  \item 2022-2023 --- wider adoption of zk-rollups (e.g., mainnet launches of zkSync Era, Polygon zkEVM), based on the idea of \textit{zero-knowledge proofs}
 \end{itemize}
 
-As of 2025, the EVM camp -- consisting of several blockchains compatible with the Ethereum Virtual Machine -- is still dominant as measured by TVL (Total Value Locked).
+As of 2025, the EVM camp --- consisting of several blockchains compatible with the Ethereum Virtual Machine --- is still dominant as measured by TVL (Total Value Locked).
 
 \subsection{Major obstacles for blockchain adoption}
 
@@ -102,14 +102,14 @@ Despite the overall hype around blockchain technology and cryptocurrencies, the 
 
 \subsubsection{Bugs are deadly yet hard to prevent}
 
-Bugs in on-chain programs are extremely costly -- a single smart-contract bug, once exploited by a hacker, can easily destroy the on-chain business that depends on it. However, current methods for preventing bugs are insufficient -- testing cannot guarantee the absence of bugs, and nor can audit. Moreover, once a bug is found, it cannot be fixed, because on-chain programs are immutable by design. Even if a program is explicitly designed to support an upgrade operation (for example, using proxies), this upgrade usually comes too late to prevent losses caused by hackers.
+Bugs in on-chain programs are extremely costly --- a single smart-contract bug, once exploited by a hacker, can easily destroy the on-chain business that depends on it. However, current methods for preventing bugs are insufficient --- testing cannot guarantee the absence of bugs, and nor can audit. Moreover, once a bug is found, it cannot be fixed, because on-chain programs are immutable by design. Even if a program is explicitly designed to support an upgrade operation (for example, using proxies), this upgrade usually comes too late to prevent losses caused by hackers.
 
 Some examples:
 
 \begin{itemize}
-  \item June 2016 -- The DAO exploit (\$50M lost), resulting in the subsequent Ethereum hard fork
-  \item November 2017 -- Parity wallets failure (\$150M lost)
-  \item August 2022 -- Nomad bridge failure (\$190M lost)
+  \item June 2016 --- The DAO exploit (\$50M lost), resulting in the subsequent Ethereum hard fork
+  \item November 2017 --- Parity wallets failure (\$150M lost)
+  \item August 2022 --- Nomad bridge failure (\$190M lost)
 \end{itemize}
 
 \subsubsection{Scammers everywhere}
@@ -119,9 +119,9 @@ Because anyone can deploy a program to a public blockchain, users face a core qu
 Some examples:
 
 \begin{itemize}
-  \item December 2020 -- Compounder Finance (\$10M lost)
-  \item October 2021 -- AnubisDAO (\$60M lost)
-  \item November 2021 -- Squid Coin (\$3M lost)
+  \item December 2020 --- Compounder Finance (\$10M lost)
+  \item October 2021 --- AnubisDAO (\$60M lost)
+  \item November 2021 --- Squid Coin (\$3M lost)
 \end{itemize}
 
 \subsubsection{``Lost in the maze'' syndrome}
@@ -140,7 +140,7 @@ For software developers, blockchains are not nearly as convenient as more tradit
   \item \textbf{The paid-call problem.} To use a given blockchain, a user needs to acquire the native cryptocurrency of this blockchain (in order to pay gas fees). This means the gas mechanics constrain the architecture of dapps. This problem could be mitigated by features like sponsored transactions or delegation.
   \item \textbf{Explicit transaction signing.} Every action taken by a user necessarily takes the form of a transaction, which in turn requires cryptographic signing. Although signing could theoretically be done by any software, this creates a security vulnerability around sharing of private keys. Therefore, users tend to use a single ``trusted'' wallet app for all the signing work, which mitigates sharing risk but on the other hand enforces every act of signing to be a tedious manual interactive process, which, as a result, impairs overall user experience. This could be mitigated if the blockchain programming model supported delegation.
   \item \textbf{Lack of a uniform delegation mechanism.} The previous case is just part of a bigger one: delegation is just not there in blockchains. Say we have Alice (user), Bob, Charlie and Dylan (on-chain services). Bob provides some complicated functionality which involves further interaction with Charlie and Dylan. Alice has no rights to interact with Dylan, so she is forced to use Bob as a privileged intermediary. Charlie recognizes Alice as a user with certain access rights. Bob cannot directly call Charlie because Bob has no rights to do so. Hence Bob would like to interact with Charlie on behalf of Alice and this is exactly the essence of delegation. When Alice wants to ask Bob to do something for her, Bob will have troubles providing a satisfactory level of ``automation'' of actions on behalf of Alice. This is not because such a delegation is fundamentally impossible; rather, the blockchain industry has not agreed on a sufficiently safe and universal mechanism of delegation yet. For example, Ethereum proposals ERC-4337 and EIP-7702 suggest such a universal delegation mechanism that could be added to Ethereum.
-  \item \textbf{The ``self-driving taxi paradox''.} Given the currently available autonomous driving technology, combined with wireless Internet access, it is possible to run a taxi service without a driver. However, such a taxi business would face a seemingly trivial problem -- how a car without a driver would refuel itself? So here is the paradox -- a self-driving taxi still needs an operator just to accomplish the gas station interaction. In blockchains we have a similar trouble: services cannot pay for their own gas consumption. Normally, it is the transaction sender who pays gas for the whole transaction execution. This immediately becomes a problem when a service has a common part (say ``a backend'') that from time to time needs to perform some maintenance tasks. These tasks are not performed for a specific user of the service, these tasks are for the service as a whole. But because the service has no way to cover the gas cost of these maintenance activities, the developer of the service has only two solutions available: (1) charge random users during their interaction (2) invoke maintenance whenever needed using a dedicated ``housekeeper'' account. Unfortunately (1) is not reliable (this approach can blow a transaction because of exceeding the gas limit) and not fair, while (2) is even more unreliable because it introduces a dependency on a centralized service. The whole issue could be mitigated by supporting the ``gas reserve'' mechanism.
+  \item \textbf{The ``self-driving taxi paradox''.} Given the currently available autonomous driving technology, combined with wireless Internet access, it is possible to run a taxi service without a driver. However, such a taxi business would face a seemingly trivial problem --- how a car without a driver would refuel itself? So here is the paradox --- a self-driving taxi still needs an operator just to accomplish the gas station interaction. In blockchains we have a similar trouble: services cannot pay for their own gas consumption. Normally, it is the transaction sender who pays gas for the whole transaction execution. This immediately becomes a problem when a service has a common part (say ``a backend'') that from time to time needs to perform some maintenance tasks. These tasks are not performed for a specific user of the service, these tasks are for the service as a whole. But because the service has no way to cover the gas cost of these maintenance activities, the developer of the service has only two solutions available: (1) charge random users during their interaction (2) invoke maintenance whenever needed using a dedicated ``housekeeper'' account. Unfortunately (1) is not reliable (this approach can blow a transaction because of exceeding the gas limit) and not fair, while (2) is even more unreliable because it introduces a dependency on a centralized service. The whole issue could be mitigated by supporting the ``gas reserve'' mechanism.
   \item \textbf{No timers and pub-sub}. Smart contracts cannot natively react to time on-chain events (including in particular clock events, also known as ``timers''). While reactive programming patterns (such as the observer pattern) are standard in off-chain programming, they are not possible on-chain. Because of this, developers have to route reactive processing via off-chain observers, which weakens decentralization.
   \item \textbf{Limited privacy}: Everything on the blockchain is anonymous but public, which is not at all the same thing as privacy. This significantly limits the development of services that critically depend on the privacy of customers' actions. Although it must be said there are some blockchains that attempt to address this problem (for example Zcash and Monero).
 \end{itemize}
@@ -175,7 +175,7 @@ Hence the paradox: the builders who add the most value are not the ones rewarded
 
 Public blockchains are available to anyone, but integrating a blockchain into a business is difficult in practice (except for simple payments), as it is often necessary to hire developers who will design, implement, and deploy a custom dapp. This is an expensive and time-consuming undertaking, bringing its own risks (because of the amount of trust one can put into developers' hands).
 
-Theoretically, the situation could be way better -- we mean just easier integration, without having to build a full dapp. However, this requires the blockchain community to converge on convenient and widely adopted abstractions/standards/APIs. An example of such an abstraction is intent-based processing (which we discuss later). The current state of the convergence is largely insufficient.
+Theoretically, the situation could be way better --- we mean just easier integration, without having to build a full dapp. However, this requires the blockchain community to converge on convenient and widely adopted abstractions/standards/APIs. An example of such an abstraction is intent-based processing (which we discuss later). The current state of the convergence is largely insufficient.
 
 \subsubsection{Performance}
 
@@ -216,7 +216,7 @@ Bugs (exploited by hackers) & Khalani smart contracts are written in Axi, a pure
 
 The economic incentives are arranged in a way that both the concept developers are rewarded for creation of popular concepts and dapp developers are rewarded for proving compliance with concepts.
 
-We believe the existence of concepts will generate social pressure on developers, as the reputation of their dapps will depend on the compliance with well-established concepts. The source of the pressure will come from users -- because the concepts infrastructure will surface at end-user level (for example in the form of easy-to-see badges, similar to how easily people use SSL in a web browser by having the lock icon there). \\
+We believe the existence of concepts will generate social pressure on developers, as the reputation of their dapps will depend on the compliance with well-established concepts. The source of the pressure will come from users --- because the concepts infrastructure will surface at end-user level (for example in the form of easy-to-see badges, similar to how easily people use SSL in a web browser by having the lock icon there). \\
 \hline
 Scams and frauds & Code in a purely functional programming language is very transparent, making it harder to obfuscate what a smart contract actually does. Formal logic provides an effective way to express formal guarantees. Checked proofs are part of the blockchain state agreed upon by consensus. \\
 \hline
@@ -280,7 +280,7 @@ An important part of the functional paradigm is a rich type system, which allows
 
 Functional programming has one advantage over imperative: it is easier to reason about functional programs, in particular when doing reasoning with formal logic. This was the key reason why we decided to adopt the functional approach to on-chain programming in Khalani.
 
-\textbf{Axi} is a purely functional programming language we designed from scratch. Axi borrows key ideas from type-theoretical proof assistants like Coq, Lean and Agda. These languages are purely functional (like Haskell) but with an added superpower -- they include formal logic. Hence, in Axi one can implement programs and also prove theorems about these programs.
+\textbf{Axi} is a purely functional programming language we designed from scratch. Axi borrows key ideas from type-theoretical proof assistants like Coq, Lean and Agda. These languages are purely functional (like Haskell) but with an added superpower --- they include formal logic. Hence, in Axi one can implement programs and also prove theorems about these programs.
 
 \subsubsection{Concepts}
 
@@ -315,9 +315,9 @@ In Khalani, we adopt the opposite extreme: we enforce that all the on-chain code
 
 The advantage of the elaborated form of the source code is that it can be formally verified in linear time (while the type-checking of the original source code could be exponential-time). This way we shield ourselves from certain kinds of DoS attacks.
 
-Using source code as the ``master copy'' stored on-chain (instead of the bytecode) means that we deliberately sacrifice freedom of programming language choice in favor of \textbf{semantic transparency}: all the on-chain code is apparent, high-level, type-safe, easy to understand and homogeneous in its form. All the typing information is preserved, all the names and comments are there. There is no obfuscation caused (naturally) by the compilation process. Keep in mind that Axi code also includes theorems and proofs -- they are also preserved and fully available on-chain.
+Using source code as the ``master copy'' stored on-chain (instead of the bytecode) means that we deliberately sacrifice freedom of programming language choice in favor of \textbf{semantic transparency}: all the on-chain code is apparent, high-level, type-safe, easy to understand and homogeneous in its form. All the typing information is preserved, all the names and comments are there. There is no obfuscation caused (naturally) by the compilation process. Keep in mind that Axi code also includes theorems and proofs --- they are also preserved and fully available on-chain.
 
-Of course, the compilation of Axi code is eventually needed for its execution. Code will get compiled at the node level, so that a node can execute transactions. However, we consider this to be the node's implementation detail. Nodes will have freedom to use different Axi compilers, or even stick to an interpreter -- as long as they respect the execution semantics of Axi (which is formally specified). Nodes can also cache the compiled versions of Axi packages to speed up execution.
+Of course, the compilation of Axi code is eventually needed for its execution. Code will get compiled at the node level, so that a node can execute transactions. However, we consider this to be the node's implementation detail. Nodes will have freedom to use different Axi compilers, or even stick to an interpreter --- as long as they respect the execution semantics of Axi (which is formally specified). Nodes can also cache the compiled versions of Axi packages to speed up execution.
 
 \subsection{Ledger model}
 
@@ -381,7 +381,7 @@ enum InputMode {
 
 Cell identity is represented by its address. Each address has a linear version history. \code{ReadOnly} is a special read-only input mode in which the cell is not consumed (we also call such read-only input cells `dependencies'; this is the traditional term used in Nervos). Cells read with input mode \code{Delete} switch status to \code{Dead}. Cells read with input mode \code{Update} also switch status to \code{Dead}, and a modified copy (same address and type, incremented version) is created among the outputs.
 
-Every cell is typed (with an Axi type) and contains exactly one value (i.e. an object) of that type -- this value is kept in the field \code{payload}. The type is set at the cell's creation and cannot change during its lifetime. In other words, cell updates preserve the cell's payload type. We will simply say ``cell's type'' when we mean cell's payload type.
+Every cell is typed (with an Axi type) and contains exactly one value (i.e. an object) of that type --- this value is kept in the field \code{payload}. The type is set at the cell's creation and cannot change during its lifetime. In other words, cell updates preserve the cell's payload type. We will simply say ``cell's type'' when we mean cell's payload type.
 
 A cell's kind is another concept (not to be confused with the cell's type) which we discuss later in the sub-chapter \textbf{Cell kinds and ownership}.
 
@@ -440,7 +440,7 @@ The set of live cells is what we call ``the current global state''. It represent
 
 \subsubsection{Packages, modules and imports}
 
-On-chain code is organized into packages and modules. Packages are much like cells -- every transaction can deploy a package (or a collection of packages). Every package is public. Packages are immutable and permanent, i.e. once deployed, they cannot be changed in any way and they stay on-chain forever. There is no package ``upgrade'' mechanism and no package versioning. Deploying a modified version of an existing package yields a new independent package with a new hash. A package is just a public shared library and the blockchain itself can be seen as a decentralized repository of Axi packages.
+On-chain code is organized into packages and modules. Packages are much like cells --- every transaction can deploy a package (or a collection of packages). Every package is public. Packages are immutable and permanent, i.e. once deployed, they cannot be changed in any way and they stay on-chain forever. There is no package ``upgrade'' mechanism and no package versioning. Deploying a modified version of an existing package yields a new independent package with a new hash. A package is just a public shared library and the blockchain itself can be seen as a decentralized repository of Axi packages.
 
 A package contains a hierarchy of modules (identified by their hierarchical names). Each module serves as a namespace and contains Axi code: types, constants, functions, traits, theorems and proofs. Modules can import selected definitions from public modules of their enclosing package and also from public modules of other (previously deployed) packages.
 
@@ -467,38 +467,38 @@ The model of Ethereum was heavily inspired by object-oriented programming ideas,
 
 Inside an SCA, data and code operating on this data are bundled together, i.e. exactly like in a singleton object in any object-oriented programming language. Because public methods of an SCA form an API that other SCAs (and transactions) can call, it can also be seen as a small ``server'' operating on-chain.
 
-However, in most object-oriented programming languages, classes and instances are concepts living on different levels: classes contain code, while objects contain data. This way, a class serves as a template for objects. Several instances of a class can be created, all of these instances -- called objects -- sharing the same behavior. Meanwhile in the Ethereum model the class-objects separation is not properly reflected: there are no classes. An SCA is like a singleton object glued together with its class.
+However, in most object-oriented programming languages, classes and instances are concepts living on different levels: classes contain code, while objects contain data. This way, a class serves as a template for objects. Several instances of a class can be created, all of these instances --- called objects --- sharing the same behavior. Meanwhile in the Ethereum model the class-objects separation is not properly reflected: there are no classes. An SCA is like a singleton object glued together with its class.
 
-This problem can be easily fixed, though -- it would be sufficient to detach code from objects, i.e. have objects and classes as separate concepts in the VM. But when you follow this idea, the concept of a ``smart contract'' does not fit the situation anymore.
+This problem can be easily fixed, though --- it would be sufficient to detach code from objects, i.e. have objects and classes as separate concepts in the VM. But when you follow this idea, the concept of a ``smart contract'' does not fit the situation anymore.
 
 This is exactly what we do in the Khalani blockchain:
 
 \begin{itemize}
   \item code is in modules
   \item data is in cells
-  \item every cell contains a single object -- this object is an instance of its ``class''; however, because Khalani on-chain programming is really functional programming in Axi, we rather say that this object is an element of its type (where the definition of the type sits in some module)
+  \item every cell contains a single object --- this object is an instance of its ``class''; however, because Khalani on-chain programming is really functional programming in Axi, we rather say that this object is an element of its type (where the definition of the type sits in some module)
 \end{itemize}
 
-Smart contracts from Ethereum can be ported to the Khalani blockchain -- every smart contract would then correspond to a shared cell (here ``shared'' is a so-called \textbf{kind} of cell -- we describe kinds later in the next chapter). We just do not use the term ``smart-contract'' for a shared cell because the code defining the structure and behavior of the cell is not part of the cell (instead it is defined by functions in the corresponding module). We also do not want to use the term ``smart-contract'' meaning the module, because this could create even bigger confusion for people used to the Ethereum model (because in Khalani the closest thing to Ethereum smart contracts are really shared cells).
+Smart contracts from Ethereum can be ported to the Khalani blockchain --- every smart contract would then correspond to a shared cell (here ``shared'' is a so-called \textbf{kind} of cell --- we describe kinds later in the next chapter). We just do not use the term ``smart-contract'' for a shared cell because the code defining the structure and behavior of the cell is not part of the cell (instead it is defined by functions in the corresponding module). We also do not want to use the term ``smart-contract'' meaning the module, because this could create even bigger confusion for people used to the Ethereum model (because in Khalani the closest thing to Ethereum smart contracts are really shared cells).
 
 \subsubsection{Cell kinds and ownership}
 
 Every cell has a \textbf{kind}, which is one of:
 
 \begin{itemize}
-  \item \textbf{private} -- this means it is owned by an account (has restricted access)
-  \item \textbf{shared} -- it means it is mutable and accessible to everyone
-  \item \textbf{immutable} -- it means it is immutable and accessible to everyone
-  \item \textbf{account} -- it is a special cell that represents blockchain user identity
+  \item \textbf{private} --- this means it is owned by an account (has restricted access)
+  \item \textbf{shared} --- it means it is mutable and accessible to everyone
+  \item \textbf{immutable} --- it means it is immutable and accessible to everyone
+  \item \textbf{account} --- it is a special cell that represents blockchain user identity
 \end{itemize}
 
-An account is a special kind of a cell -- we need it to implement account abstraction (see the \textbf{Accounts} chapter for more details on this).
+An account is a special kind of a cell --- we need it to implement account abstraction (see the \textbf{Accounts} chapter for more details on this).
 
 Shared cells are the way to implement ``services''.
 
 Immutable cells are for storing public data on-chain. They can be used as stateless services.
 
-Private cells are mostly useful as envelopes for resources (such as cryptocurrencies). They can be owned by accounts -- for convenience. For example, an account can point to the address of a cell containing money to be used for covering gas. Shared cells cannot own private cells, because they can more easily store their resources directly inside the master cell.
+Private cells are mostly useful as envelopes for resources (such as cryptocurrencies). They can be owned by accounts --- for convenience. For example, an account can point to the address of a cell containing money to be used for covering gas. Shared cells cannot own private cells, because they can more easily store their resources directly inside the master cell.
 
 \subsubsection{Cell usage patterns}
 
@@ -557,14 +557,14 @@ As we already explained, our cells play the role analogous to smart-contracts. A
 
 Therefore, not surprisingly, our account abstraction is based on \textbf{account objects}, but we will actually use the term \textbf{account} for talking about account objects. Like any other object, an account is programmable. An account object lives in a dedicated mutable cell, hence it has an address. This address is otherwise known as the \textbf{account address}.
 
-The VM recognizes accounts as ``special'' cells: they play the role of ``gatekeepers'' for the whole blockchain. Specifically -- every incoming transaction gets interpreted by the corresponding account. ``Interpreted'' means that it is the account that decides how this transaction is going to be executed -- if at all.
+The VM recognizes accounts as ``special'' cells: they play the role of ``gatekeepers'' for the whole blockchain. Specifically --- every incoming transaction gets interpreted by the corresponding account. ``Interpreted'' means that it is the account that decides how this transaction is going to be executed --- if at all.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{graphics/account-abstraction.png}
 \end{figure}
 
-For an Axi type to be used as a type of account objects it is necessary to implement the \code{Account} interface (caution -- we are still using pseudocode here, go to the appendixes for examples using the actual Axi syntax):
+For an Axi type to be used as a type of account objects it is necessary to implement the \code{Account} interface (caution --- we are still using pseudocode here, go to the appendixes for examples using the actual Axi syntax):
 
 \begin{lstlisting}[language=Rust]
 pub trait Account<T: Action> {
@@ -590,7 +590,7 @@ An account is created as any other object: the constructor function from its def
   \item chain-id (explained in the \textbf{Blockchain mechanics} chapter)
 \end{itemize}
 
-A new account can be created programmatically -- by an invocation of a suitable native function -- during the execution of any on-chain code. Alternatively, it can be created by executing a special ``self-spawn'' transaction.
+A new account can be created programmatically --- by an invocation of a suitable native function --- during the execution of any on-chain code. Alternatively, it can be created by executing a special ``self-spawn'' transaction.
 
 \subsubsection{Stubs and self-spawn}
 
@@ -738,7 +738,7 @@ However the semantics of on-chain events is more tricky than it is for tradition
 
 \subsubsection{Gas reserve}
 
-Obviously we cannot charge the event emitter -- this would be against the very idea of events: emitter only announces things and does not expect any penalty for this.
+Obviously we cannot charge the event emitter --- this would be against the very idea of events: emitter only announces things and does not expect any penalty for this.
 
 Therefore, it seems logical it should be the subscriber who pays the gas. Now it becomes clear why Ethereum does not support on-chain pub-sub: the desired gas charging semantics would fundamentally break the gas model of Ethereum.
 
@@ -759,8 +759,8 @@ With pub-sub present, the situation gets more tricky. The invocation of an event
 We previously said that it should be the subscriber who pays the gas for the handler's execution. But even this is tricky. It can be:
 
 \begin{itemize}
-  \item the subscriber -- understood as the smart-contract that registered the handler
-  \item the subscriber -- the sender of the transaction who invoked handler registration
+  \item the subscriber --- understood as the smart-contract that registered the handler
+  \item the subscriber --- the sender of the transaction who invoked handler registration
 \end{itemize}
 
 Both approaches turn out to be somewhat disappointing. Big part of the problem is that gas prices are fluctuating over time. What should the system do if the gas cost of the handler execution is not sufficiently covered? The only reasonable option is to roll back the whole handler invocation. Unfortunately, such an approach makes the whole pub-sub abstraction too non-deterministic to be useful.
@@ -791,7 +791,7 @@ The question of who pays for timer handler's execution leads to similar consider
 
 \subsubsection{Transactional approach to pub-sub and timers}
 
-The traditional approach to covering gas cost is: the execution cost of the whole call tree is paid by the transaction sender. However -- as we argued above -- this model breaks down when calling handlers: someone else is to pay for the handler. It leads to an interesting question: if the call tree of a transaction A invoked a handler B (effectively another call tree) and during the execution of B's call tree the corresponding gas/cryptocurrency reserve has been exhausted -- what should happen? Of course the execution of call tree B has to stop immediately. But the state of the blockchain cannot stay inconsistent, so we need to do a rollback. But because an event emitter must be shielded from any errors during the execution of handlers, it leads to the conclusion that we need to roll back call tree B only, while A's call tree will stay intact.
+The traditional approach to covering gas cost is: the execution cost of the whole call tree is paid by the transaction sender. However --- as we argued above --- this model breaks down when calling handlers: someone else is to pay for the handler. It leads to an interesting question: if the call tree of a transaction A invoked a handler B (effectively another call tree) and during the execution of B's call tree the corresponding gas/cryptocurrency reserve has been exhausted --- what should happen? Of course the execution of call tree B has to stop immediately. But the state of the blockchain cannot stay inconsistent, so we need to do a rollback. But because an event emitter must be shielded from any errors during the execution of handlers, it leads to the conclusion that we need to roll back call tree B only, while A's call tree will stay intact.
 
 The simplest way to achieve this isolation and to retain the original gas semantics is to assume that handler invocation is executed as a separate transaction.
 
@@ -815,9 +815,9 @@ Our idea of handlers execution leads to the following behavior: when the block i
 \begin{enumerate}
   \item Colors:
   \begin{enumerate}
-    \item green -- external transactions (ordered by the consensus protocol)
-    \item yellow -- pub-sub handlers invocations
-    \item red -- timers handlers invocations
+    \item green --- external transactions (ordered by the consensus protocol)
+    \item yellow --- pub-sub handlers invocations
+    \item red --- timers handlers invocations
   \end{enumerate}
   \item While executing any transaction, the VM accumulates handler invocations launched by event emitters. Every such handler invocation will then be executed in a separate (internal) transaction.
   \item Because any on-chain code can emit events, this means that any transaction (internal or external) can spawn new transactions by emitting events. This leads to a tree where nodes are transactions and edges are handler invocations. Because the whole block has the same blockchain time, timer handlers are placed at the end of a block (after all the external transactions). Their ordering should be implied by the ordering of respective subscriptions.
@@ -840,7 +840,7 @@ Our idea of handlers execution leads to the following behavior: when the block i
 
 The exact way timers, pub-sub and gas reserve will be operated at the Axi level is under active research. Nevertheless, we want all three mechanisms to be available.
 
-Most likely we will not introduce gas as a separate cryptocurrency, because this may lead to the creation of a massive gas trading market, which in turn could undermine the reason for gas existence -- gas is there to achieve supply-demand balance around the processing capacity of the blockchain nodes network. Therefore we are leaning towards a more limited gas reserve semantics, where cells of kind ``account'' and ``shared'' can accumulate private, non-transferable gas reserve for their own use only.
+Most likely we will not introduce gas as a separate cryptocurrency, because this may lead to the creation of a massive gas trading market, which in turn could undermine the reason for gas existence --- gas is there to achieve supply-demand balance around the processing capacity of the blockchain nodes network. Therefore we are leaning towards a more limited gas reserve semantics, where cells of kind ``account'' and ``shared'' can accumulate private, non-transferable gas reserve for their own use only.
 
 The gas price to be paid when buying gas for the reserve is P\% bigger than the gas price of the current block. The fluctuation of the parameter P would then be subject to decentralized management by validators voting or it will be controlled by some in-protocol mathematical formula depending on the total value of gas burned in the last N blocks vs current total amount of gas reserve.
 
@@ -920,7 +920,7 @@ In the most extensible form an i-market can be:
   \item intent-type-extensible (i.e. allowing new intent types to be defined and used)
 \end{itemize}
 
-For the intent-type extensibility we anticipate that the crucial abstraction -- \textbf{mandarin} -- is needed. A mandarin is a service-like cell that orchestrates the processing of a single intent. In other words, a mandarin is a self-executing trading agreement, established by parties involved in a trade. The mandarin lifecycle corresponds to the execution process of the corresponding trade.
+For the intent-type extensibility we anticipate that the crucial abstraction --- \textbf{mandarin} --- is needed. A mandarin is a service-like cell that orchestrates the processing of a single intent. In other words, a mandarin is a self-executing trading agreement, established by parties involved in a trade. The mandarin lifecycle corresponds to the execution process of the corresponding trade.
 
 Typically, the involved parties that use a mandarin for orchestrating a trade will be:
 
@@ -950,7 +950,7 @@ But this is just the beginning. Over time, off-chain service providers will find
   \item Uber (integrator of people transportation services)
 \end{itemize}
 
-Over time, intent-based markets will appear as a viable alternative to such service integrators. This in turn will go in parallel with completely new mandarin types -- corresponding to apartment renting intents or transportation intents. Ultimately, thanks to the intent-based infrastructure, blockchains will become perfect platforms for integration of off-chain services (because there is no provider lock-in and provider bias -- unavoidable in the case of centralized integrators).
+Over time, intent-based markets will appear as a viable alternative to such service integrators. This in turn will go in parallel with completely new mandarin types --- corresponding to apartment renting intents or transportation intents. Ultimately, thanks to the intent-based infrastructure, blockchains will become perfect platforms for integration of off-chain services (because there is no provider lock-in and provider bias --- unavoidable in the case of centralized integrators).
 
 An implementation of a fully-pluggable i-market has to address the following topics:
 
@@ -978,8 +978,8 @@ This means an i-market has to define a suitable format of an ``intent-type'' plu
 There are two layers of this pattern:
 
 \begin{itemize}
-  \item \textbf{mandarin type} -- this is the code that implements one kind of intent (i.e. one trading pattern)
-  \item \textbf{mandarin object (instance)} -- the cell typed with a mandarin type; it orchestrates the execution of one intent
+  \item \textbf{mandarin type} --- this is the code that implements one kind of intent (i.e. one trading pattern)
+  \item \textbf{mandarin object (instance)} --- the cell typed with a mandarin type; it orchestrates the execution of one intent
 \end{itemize}
 
 It is not necessary, but probably convenient, for mandarin objects (we just call them ``mandarins'') to be created by the i-market.
@@ -1005,7 +1005,7 @@ Whenever the VM executes Axi code, it computes gas. Gas measures the amount of c
 
 Additionally, whenever a new package gets deployed, a constant fraction \code{Q} of its deployment gas cost is equally distributed as royalty to all packages it (transitively) imports.
 
-Once distributed to packages, the royalty gas is immediately converted back to the native cryptocurrency (more precisely, the gas units -- distributed as royalties -- are then used to proportionally pay the transaction gas fee to all relevant package owners).
+Once distributed to packages, the royalty gas is immediately converted back to the native cryptocurrency (more precisely, the gas units --- distributed as royalties --- are then used to proportionally pay the transaction gas fee to all relevant package owners).
 
 \subsubsection{Trading of packages}
 
@@ -1114,7 +1114,7 @@ The payload of a normal transaction is a byte-array. It is the account object wh
 
 \begin{itemize}
   \item parses the payload and validates the signature (this happens upon the admission to the mempool)
-  \item executes the transaction -- by preparing the Axi script to be executed
+  \item executes the transaction --- by preparing the Axi script to be executed
 \end{itemize}
 
 The way transactions are built allows for extreme flexibility: a transaction build at the client side can actually include a script wrote in Axi. We just enforce that in such a case the type-checking phase happens at the client side, so that the ``elaborated'' source code in AST form is sent over (not just bare source code). This way we shield the blockchain from DoS attacks based on exponentially-hard type-checking attacks.
@@ -1124,14 +1124,14 @@ The way transactions are built allows for extreme flexibility: a transaction bui
 A replay attack is a known hacking technique, where a previously signed correct transaction is reused by a hacker. There are two possible scenarios of such a reuse:
 
 \begin{itemize}
-  \item A fixed transaction is sent over and over again (to the same blockchain node) -- this could be used as a DoS attack or for malicious draining of the resources of the victim account.
+  \item A fixed transaction is sent over and over again (to the same blockchain node) --- this could be used as a DoS attack or for malicious draining of the resources of the victim account.
   \item The transaction is sent to another chain based on the same protocol (like reusing a Testnet transaction on Mainnet).
 \end{itemize}
 
 In Khalani we put in place mechanisms to prevent both scenarios:
 
 \begin{enumerate}
-  \item \textbf{TX nonce}: A transaction contains the \code{nonce} field. The sender puts a randomly generated 256-bit value there. This is supposed to enforce that every transaction is unique. For performance reasons, nodes are unable to check this uniqueness globally, but they do not have to -- because it is enough to keep the transaction hashes index for the last two epochs. This way uniqueness of transactions within the epoch can be enforced. Because every transaction also has the \code{target\_epoch} field, this makes it impossible to use old transactions for replay attacks.
+  \item \textbf{TX nonce}: A transaction contains the \code{nonce} field. The sender puts a randomly generated 256-bit value there. This is supposed to enforce that every transaction is unique. For performance reasons, nodes are unable to check this uniqueness globally, but they do not have to --- because it is enough to keep the transaction hashes index for the last two epochs. This way uniqueness of transactions within the epoch can be enforced. Because every transaction also has the \code{target\_epoch} field, this makes it impossible to use old transactions for replay attacks.
   \item \textbf{Chain-id:} The genesis block id (which is its 256-bit hash) serves as the identifier of the chain. This chain-id is then added as a ``salt'' in the transaction hash value calculation (which is then used for tx signature). This way every transaction is valid only in the context of a single chain. Other chains will reject such a transaction as having an invalid signature.
 \end{enumerate}
 
