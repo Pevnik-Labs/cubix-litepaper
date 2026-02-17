@@ -20,7 +20,7 @@ record Donut : Type? where
 record DonutShop : Type1 where
   thisShop : Address
   price : Nat
-  balance : KhalaniCoin
+  balance : CubixCoin
   nextSerialNumber : Nat
 
 // A token which allows the owner to collect profits from his shop.
@@ -44,8 +44,8 @@ init (myPrice : Nat) (ledger : Ledger)
 
 // Buy a donut from the shop. The outputs are: the donut
 // (if successfully bought), the change and the updated shop.
-buyDonut (payment : KhalaniCoin) (shop : DonutShop)
-: Option Donut * KhalaniCoin * DonutShop
+buyDonut (payment : CubixCoin) (shop : DonutShop)
+: Option Donut * CubixCoin * DonutShop
 = let (splitResult, change) = coinSplit shop.price payment in
   match splitResult with
   | none => (none, change, shop)
@@ -63,7 +63,7 @@ buyDonut (payment : KhalaniCoin) (shop : DonutShop)
 
 // Collect profits from the shop (succeeds only for the owner).
 collectProfits (ownership : DonutShopOwnershipToken) (shop : DonutShop)
-: KhalaniCoin * DonutShopOwnershipToken * DonutShop
+: CubixCoin * DonutShopOwnershipToken * DonutShop
 = if addressof ownership.myShop == shop.thisShop then
     let
       profits = shop.balance

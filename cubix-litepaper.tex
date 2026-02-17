@@ -52,8 +52,8 @@
 
 \newcommand{\code}[1]{{\small \texttt{#1}}}
 
-\title{Khalani: \\ A Next-Generation Blockchain with On-Chain Proofs}
-\author{The Khalani Labs Team}
+\title{Cubix: \\ A Next-Generation Blockchain with On-Chain Proofs}
+\author{The Pevnik Labs Team}
 \date{November 2025}
 
 \newtheorem{example}{Example}
@@ -63,7 +63,7 @@
 \maketitle
 
 \begin{abstract}
-Khalani is an attempt to design and prototype a next-generation blockchain architecture that has the potential to eventually replace the currently dominant Ethereum-style chains. We postulate a collection of novel features for this new blockchain:
+Cubix is an attempt to design and prototype a next-generation blockchain architecture that has the potential to eventually replace the currently dominant Ethereum-style chains. We postulate a collection of novel features for this new blockchain:
 
 \begin{itemize}
   \item purely functional programming on-chain
@@ -76,9 +76,9 @@ Khalani is an attempt to design and prototype a next-generation blockchain archi
   \item account abstraction (ability to programmatically define the behavior of blockchain accounts)
 \end{itemize}
 
-We present the details of how these features fit together and how they provide remedies for known problems of existing blockchains. Although some of them are already present elsewhere, the overall vision is new. We conclude with an overview of Axi, Khalani's on-chain programming language.
+We present the details of how these features fit together and how they provide remedies for known problems of existing blockchains. Although some of them are already present elsewhere, the overall vision is new. We conclude with an overview of Axi, Cubix's on-chain programming language.
 
-Caution: this \textit{litepaper} sketches only the key ideas from ongoing research. It is different from the upcoming Khalani \textit{whitepaper}, which will contain detailed technical specifications.
+Caution: this \textit{litepaper} sketches only the key ideas from ongoing research. It is different from the upcoming Cubix \textit{whitepaper}, which will contain detailed technical specifications.
 \end{abstract}
 
 \section{Introduction}
@@ -187,9 +187,9 @@ This could be improved, for example, if the consensus protocol has some more hin
 
 We aim to prototype a next-generation blockchain. Our main focus is on the on-chain programming model, i.e. the Virtual Machine (VM). We pair a novel and innovative VM design with some existing performant proof-of-stake consensus protocol.
 
-We hope that the adoption of Khalani will challenge EVM dominance by offering significant usability gains and that, as a consequence, its ideas will spread to other chains, inspiring innovation and moving the industry forward.
+We hope that the adoption of Cubix will challenge EVM dominance by offering significant usability gains and that, as a consequence, its ideas will spread to other chains, inspiring innovation and moving the industry forward.
 
-The key distinguishing features of the Khalani blockchain are:
+The key distinguishing features of the Cubix blockchain are:
 
 \begin{itemize}
   \item Axi, a \textbf{purely functional} programming language for smart contracts
@@ -205,14 +205,14 @@ The key distinguishing features of the Khalani blockchain are:
   \item \textbf{code-as-asset} (code you wrote earns money for you, code is an asset and can be traded)
 \end{itemize}
 
-The following table gives a bird's-eye overview of key blockchain adoption obstacles (as listed above) vs features of Khalani blockchain that are supposed to mitigate them.
+The following table gives a bird's-eye overview of key blockchain adoption obstacles (as listed above) vs features of Cubix blockchain that are supposed to mitigate them.
 
 \bigskip
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
-\textbf{Problem} & \textbf{Khalani's solution} \\
+\textbf{Problem} & \textbf{Cubix's solution} \\
 \hline
-Bugs (exploited by hackers) & Khalani smart contracts are written in Axi, a purely functional programming language. Axi supports so-called ``concepts'' (concept is a language feature in Axi) which are semantically-enriched interfaces. In Axi one can use formal logic to prove that a software component is compliant with a given concept.
+Bugs (exploited by hackers) & Cubix smart contracts are written in Axi, a purely functional programming language. Axi supports so-called ``concepts'' (concept is a language feature in Axi) which are semantically-enriched interfaces. In Axi one can use formal logic to prove that a software component is compliant with a given concept.
 
 The economic incentives are arranged in a way that both the concept developers are rewarded for creation of popular concepts and dapp developers are rewarded for proving compliance with concepts.
 
@@ -238,7 +238,7 @@ Integration paths not well-established & Economic incentives to build and conver
 \hline
 Performance & UTXO consensus, which is based on a partial order (as opposed to a sequence), with declared inputs of every transaction. Also, the object ownership model reduces collisions between transactions. \\
 \hline
-Limited privacy & For now the relevant features of Khalani are not decided yet. We are looking into existing solutions (such as Monero and Zcash) to estimate feasibility. \\
+Limited privacy & For now the relevant features of Cubix are not decided yet. We are looking into existing solutions (such as Monero and Zcash) to estimate feasibility. \\
 \hline
 \end{tabularx}
 \bigskip
@@ -278,7 +278,7 @@ In \textbf{imperative programming}, the most widespread programming paradigm, th
 
 An important part of the functional paradigm is a rich type system, which allows for algebraic data types and functional types. The assignment statement is not supported (not needed); it is only possible to define constants.
 
-Functional programming has one advantage over imperative: it is easier to reason about functional programs, in particular when doing reasoning with formal logic. This was the key reason why we decided to adopt the functional approach to on-chain programming in Khalani.
+Functional programming has one advantage over imperative: it is easier to reason about functional programs, in particular when doing reasoning with formal logic. This was the key reason why we decided to adopt the functional approach to on-chain programming in Cubix.
 
 \textbf{Axi} is a purely functional programming language we designed from scratch. Axi borrows key ideas from type-theoretical proof assistants like Coq, Lean and Agda. These languages are purely functional (like Haskell) but with an added superpower --- they include formal logic. Hence, in Axi one can implement programs and also prove theorems about these programs.
 
@@ -305,7 +305,7 @@ Move underpins Sui and Aptos, demonstrating the power of linear typing for build
 
 In traditional blockchains (such as Ethereum), code of on-chain programs is stored in its compiled form, in the bytecode format (low-level representation using the internal language of the VM). This approach resembles traditional computers, where the CPU executes machine code, while developers use various programming languages which are compiled to machine code. The biggest advantage of this approach is the freedom of choice of the smart-contract programming language. The biggest disadvantage is that smart-contracts are hard to understand and analyze.
 
-In Khalani, we adopt the opposite extreme: we enforce that all the on-chain code must be written in Axi. Moreover, we actually store on-chain the source code of Axi programs. Precisely speaking, code is stored as content-addressed elaborated AST:
+In Cubix, we adopt the opposite extreme: we enforce that all the on-chain code must be written in Axi. Moreover, we actually store on-chain the source code of Axi programs. Precisely speaking, code is stored as content-addressed elaborated AST:
 
 \begin{itemize}
   \item \textbf{AST} stands for ``abstract syntax tree''; it is just the result of parsing the textual sources
@@ -323,7 +323,7 @@ Of course, the compilation of Axi code is eventually needed for its execution. C
 
 \subsubsection{UTXO and state evolution}
 
-Global state (``current state of the world'') in Khalani blockchain is composed of two parts:
+Global state (``current state of the world'') in Cubix blockchain is composed of two parts:
 
 \begin{itemize}
   \item \textbf{data zone}: this part follows the UTXO structure (cells)
@@ -471,15 +471,15 @@ However, in most object-oriented programming languages, classes and instances ar
 
 This problem can be easily fixed, though --- it would be sufficient to detach code from objects, i.e. have objects and classes as separate concepts in the VM. But when you follow this idea, the concept of a ``smart contract'' does not fit the situation anymore.
 
-This is exactly what we do in the Khalani blockchain:
+This is exactly what we do in the Cubix blockchain:
 
 \begin{itemize}
   \item code is in modules
   \item data is in cells
-  \item every cell contains a single object --- this object is an instance of its ``class''; however, because Khalani on-chain programming is really functional programming in Axi, we rather say that this object is an element of its type (where the definition of the type sits in some module)
+  \item every cell contains a single object --- this object is an instance of its ``class''; however, because Cubix on-chain programming is really functional programming in Axi, we rather say that this object is an element of its type (where the definition of the type sits in some module)
 \end{itemize}
 
-Smart contracts from Ethereum can be ported to the Khalani blockchain --- every smart contract would then correspond to a shared cell (here ``shared'' is a so-called \textbf{kind} of cell --- we describe kinds later in the next chapter). We just do not use the term ``smart-contract'' for a shared cell because the code defining the structure and behavior of the cell is not part of the cell (instead it is defined by functions in the corresponding module). We also do not want to use the term ``smart-contract'' meaning the module, because this could create even bigger confusion for people used to the Ethereum model (because in Khalani the closest thing to Ethereum smart contracts are really shared cells).
+Smart contracts from Ethereum can be ported to the Cubix blockchain --- every smart contract would then correspond to a shared cell (here ``shared'' is a so-called \textbf{kind} of cell --- we describe kinds later in the next chapter). We just do not use the term ``smart-contract'' for a shared cell because the code defining the structure and behavior of the cell is not part of the cell (instead it is defined by functions in the corresponding module). We also do not want to use the term ``smart-contract'' meaning the module, because this could create even bigger confusion for people used to the Ethereum model (because in Cubix the closest thing to Ethereum smart contracts are really shared cells).
 
 \subsubsection{Cell kinds and ownership}
 
@@ -513,7 +513,7 @@ The blockchain cell-based model is very flexible and it is not desirable (or eve
 
 A \textbf{service} is a pattern that effectively resembles smart-contract accounts from Ethereum: there is an on-chain object sitting at a fixed well-known address and offering a public interface to be called by other on-chain actors (objects and accounts). An example of such a service could be a DEX, a bridge, a name-registration service, an oracle, or a facade to an on-chain economic game.
 
-An \textbf{asset} pattern is for creating generally ``passive'' resources which can be traded/purchased: cryptocurrencies, NFTs, wrapped coins, soul-bound tokens. A built-in cryptocurrency of Khalani is also materialized using the asset pattern.
+An \textbf{asset} pattern is for creating generally ``passive'' resources which can be traded/purchased: cryptocurrencies, NFTs, wrapped coins, soul-bound tokens. A built-in cryptocurrency of Cubix is also materialized using the asset pattern.
 
 A \textbf{mandarin} pattern is the one we promote for intent-based processing. We introduce it later in the document.
 
@@ -594,7 +594,7 @@ A new account can be created programmatically --- by an invocation of a suitable
 
 \subsubsection{Stubs and self-spawn}
 
-We want Khalani blockchain users to be as sovereign as possible. To achieve this we want every user to have an easy and maximally independent path for creating a blockchain account.
+We want Cubix blockchain users to be as sovereign as possible. To achieve this we want every user to have an easy and maximally independent path for creating a blockchain account.
 
 Let's recall first how this works on Ethereum:
 
@@ -604,7 +604,7 @@ Let's recall first how this works on Ethereum:
   \item I am good to go with sending transactions to my account.
 \end{enumerate}
 
-On Khalani, this is a little more complicated, because we have account abstraction. So for an account to be usable, the account object must be created first. For this to happen:
+On Cubix, this is a little more complicated, because we have account abstraction. So for an account to be usable, the account object must be created first. For this to happen:
 
 \begin{itemize}
   \item the type of account must be selected first (just the user has to pick one, according to his needs; frequently it will be just the StandardAccount type from the Axi standard library)
@@ -633,7 +633,7 @@ Before we even delve into the actual delegation problem, we need to discuss the 
 
 On Ethereum, possible actors are accounts and smart-contracts. Both can own money and both can transfer money.
 
-This situation is a little different in Khalani. On one hand we also have accounts ans services. But technically, both are represented as cells (account cells and shared cells). Hence we end up with the conclusion that in Khalani blockchain actors are just cells. In the Khalani homogenous model, cells serve all purposes.
+This situation is a little different in Cubix. On one hand we also have accounts ans services. But technically, both are represented as cells (account cells and shared cells). Hence we end up with the conclusion that in Cubix blockchain actors are just cells. In the Cubix homogenous model, cells serve all purposes.
 
 Therefore when we apply the well-known cryptography convention to use names Alice, Bob, Charlie, Dylan as the actors of a protocol under consideration, we generally think of them as on-chain objects (cells). It is just enough to remember that these objects are flexible enough to represent accounts, services and resources.
 
@@ -696,11 +696,11 @@ The missing element here is the ability to \textbf{delegate} Alice's access righ
   \includegraphics[width=0.5\textwidth]{graphics/delegation-3.png}
 \end{figure}
 
-\subsubsection{Delegation in Khalani blockchain}
+\subsubsection{Delegation in Cubix blockchain}
 
 The delegation mechanism is very powerful and useful, for example it is a crucial element of the intent-based processing infrastructure (which we explain later, in the \textbf{Intents} chapter). At the same time, any such mechanism is extremely dangerous, because by its very nature it bypasses access-rights limitations, hence malicious players can utilize this as a universal fraud tool.
 
-In Khalani, we attempt to get the best of both worlds: maximal safety and maximal flexibility. Therefore, we do not follow the Ethereum's delegation strategy. Instead, our delegation model is based on a variant of the capability pattern. We allow Alice to form a so-called ``speculative handle'' to represent her rights to access Charlie. Alice can pass such a handle to Bob so as to execute the delegation of privileges. However, this delegation is non-exclusive (i.e. can be given to several solvers) and it can also be revoked. That being said, the mechanism is still under research and we have not decided what will be its final form.
+In Cubix, we attempt to get the best of both worlds: maximal safety and maximal flexibility. Therefore, we do not follow the Ethereum's delegation strategy. Instead, our delegation model is based on a variant of the capability pattern. We allow Alice to form a so-called ``speculative handle'' to represent her rights to access Charlie. Alice can pass such a handle to Bob so as to execute the delegation of privileges. However, this delegation is non-exclusive (i.e. can be given to several solvers) and it can also be revoked. That being said, the mechanism is still under research and we have not decided what will be its final form.
 
 \subsection{Pub-sub, timers and gas reserve}
 
@@ -882,7 +882,7 @@ Intent-driven processing can be seen as a far-reaching generalization of the dec
 
 \subsubsection{Intent markets}
 
-We do not want to hardcode a fixed intent-based ecosystem into the Khalani blockchain. Rather, we believe the right way to approach the problem is to ensure that a blockchain provides a sufficiently versatile toolbox of mechanisms needed for building such ecosystems.
+We do not want to hardcode a fixed intent-based ecosystem into the Cubix blockchain. Rather, we believe the right way to approach the problem is to ensure that a blockchain provides a sufficiently versatile toolbox of mechanisms needed for building such ecosystems.
 
 We anticipate that the future of intents is going to be primarily driven by the concept of \textbf{intent markets}, for which we introduce the new term ``i-market''. An i-market is a far-reaching generalization of a Dex:
 
@@ -968,7 +968,7 @@ As we stated before, a Dex is also an example of an i-market. But in a Dex all i
 
 In the upcoming intent-based processing wave the whole point is in building i-markets that are not confined by a hardcoded list of intent types. Rather, we want such an i-market to support any intent types. So we want pluggable intent types.
 
-This means an i-market has to define a suitable format of an ``intent-type'' plugin. In Khalani we actually suggest how this can be accomplished. We call this ``the mandarin pattern''.
+This means an i-market has to define a suitable format of an ``intent-type'' plugin. In Cubix we actually suggest how this can be accomplished. We call this ``the mandarin pattern''.
 
 \begin{figure}[H]
   \centering
@@ -992,7 +992,7 @@ A mandarin can be seen as a far-reaching generalization of the escrow concept. F
 
 \subsection{Code as asset}
 
-We want the authors of good on-chain code to be financially rewarded. Therefore Khalani blockchain supports two complementary mechanisms:
+We want the authors of good on-chain code to be financially rewarded. Therefore Cubix blockchain supports two complementary mechanisms:
 
 \begin{itemize}
   \item every package has an owner (which is an account); an owner can be changed, in other words, on-chain trading of packages is possible
@@ -1016,7 +1016,7 @@ It works like this:
 \begin{itemize}
   \item An owner of the package invokes a special function that starts the auction process. This is the last thing he can do, because the auction cannot be revoked. As a result, an auction mandarin will be created.
   \item The duration of the auction is a protocol constant and is expressed as blockchain time (i.e. number of blocks in consensus). We imagine the auction should be approximately one month long.
-  \item Bidding happens via invoking a \code{bid()} method of the auction mandarin. Bidding involves the actual transfer of the money (always in the form of Khalani native cryptocurrency). The money offered by the last bidder money gets locked in the auction mandarin. The bidding releases previously locked money (returns it back to the previous bidder).
+  \item Bidding happens via invoking a \code{bid()} method of the auction mandarin. Bidding involves the actual transfer of the money (always in the form of Cubix native cryptocurrency). The money offered by the last bidder money gets locked in the auction mandarin. The bidding releases previously locked money (returns it back to the previous bidder).
   \item Whoever wins the auction, will take over the ownership of the package. The money paid by the winner is automatically transferred to the previous owner of the package.
   \item If nobody participated in the auction, the ownership of the package stays unchanged.
 \end{itemize}
@@ -1025,13 +1025,13 @@ It works like this:
 
 Packages can be ``donated to the public domain''. Specifically, the owner may relinquish his ownership at any time. This will cause that royalties for using the donated package will no longer be charged. A package donated to the public domain will stay as public domain forever, i.e. the donation is irreversible.
 
-In particular the Axi standard library will be deployed to the Khalani blockchain at Genesis in a form of a collection of packages. These packages will be deliberately donated to the public domain since day one.
+In particular the Axi standard library will be deployed to the Cubix blockchain at Genesis in a form of a collection of packages. These packages will be deliberately donated to the public domain since day one.
 
 After a fixed period following deployment, every package automatically gets donated to the public domain. This fixed time is a protocol parameter. We envision it to be set to 15 years.
 
 \subsubsection{Gas usage statistics}
 
-Because royalties are paid as a fraction of the actually burned gas, package authors earn more if their code is less gas efficient. This is of course not a good correlation, because it looks like a violation of incentive compatibility. However, the situation is actually not that bad because the on-chain code in Khalani forms an open market. If there is a way to gas-optimize a popular package, someone may actually implement a gas-optimized version, deploy it and advertise its existence to the community, so that people will migrate their code to use the more efficient version.
+Because royalties are paid as a fraction of the actually burned gas, package authors earn more if their code is less gas efficient. This is of course not a good correlation, because it looks like a violation of incentive compatibility. However, the situation is actually not that bad because the on-chain code in Cubix forms an open market. If there is a way to gas-optimize a popular package, someone may actually implement a gas-optimized version, deploy it and advertise its existence to the community, so that people will migrate their code to use the more efficient version.
 
 However, for this to work in practice, two conditions must be met:
 
@@ -1128,7 +1128,7 @@ A replay attack is a known hacking technique, where a previously signed correct 
   \item The transaction is sent to another chain based on the same protocol (like reusing a Testnet transaction on Mainnet).
 \end{itemize}
 
-In Khalani we put in place mechanisms to prevent both scenarios:
+In Cubix we put in place mechanisms to prevent both scenarios:
 
 \begin{enumerate}
   \item \textbf{TX nonce}: A transaction contains the \code{nonce} field. The sender puts a randomly generated 256-bit value there. This is supposed to enforce that every transaction is unique. For performance reasons, nodes are unable to check this uniqueness globally, but they do not have to --- because it is enough to keep the transaction hashes index for the last two epochs. This way uniqueness of transactions within the epoch can be enforced. Because every transaction also has the \code{target\_epoch} field, this makes it impossible to use old transactions for replay attacks.
@@ -1137,7 +1137,7 @@ In Khalani we put in place mechanisms to prevent both scenarios:
 
 \subsubsection{Blocks and consensus}
 
-We have not decided yet which consensus protocol will be used in the Khalani blockchain. Most likely this will be a variant of proof-of-stake, which takes into account the native concurrency of the UTXO model.
+We have not decided yet which consensus protocol will be used in the Cubix blockchain. Most likely this will be a variant of proof-of-stake, which takes into account the native concurrency of the UTXO model.
 
 The UTXO model is a hypergraph, where transactions are hyper-edges. The computational dependencies between transactions have the structure of a partial order. What the consensus protocol has to do is to achieve Byzantine agreement across blockchain nodes with regard to this partial order. An example of such a protocol is Mysticeti:
 

@@ -20,7 +20,7 @@ main
   match optShopRef with
   | none => ledger
   | some shopRef =>
-    let (optCoin, ledger) = delete KhalaniCoin coinAddr ledger in
+    let (optCoin, ledger) = delete CubixCoin coinAddr ledger in
     match optCoin with
     | none => ledger
     | some paymentCoin =>

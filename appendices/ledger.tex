@@ -1,6 +1,6 @@
 \section{Interacting with the ledger in Axi}
 
-In this appendix, we will see how Axi programs can interact with Khalani's ledger. We will start with an overview of the ``life cycle'' of resources, which is a mental model of what can happen to resources (and how) both when they are on the ledger and when they are being used by a program. Then we will look at the primitive (built-in) types and functions that Axi uses to interact with the ledger. Finally, we will discuss a slightly longer example of an on-chain service, together with example transactions that set it up and use it.
+In this appendix, we will see how Axi programs can interact with Cubix's ledger. We will start with an overview of the ``life cycle'' of resources, which is a mental model of what can happen to resources (and how) both when they are on the ledger and when they are being used by a program. Then we will look at the primitive (built-in) types and functions that Axi uses to interact with the ledger. Finally, we will discuss a slightly longer example of an on-chain service, together with example transactions that set it up and use it.
 
 \subsection{The resource life cycle}
 
@@ -26,7 +26,7 @@ As we can see, the resource life cycle is determined by two orthogonal but compl
 
 \subsection{Ledger primitives}
 
-In this section, we will see what Khalani's ledger looks like from Axi's perspective. To do this, we will discuss the primitive (i.e. built-in) types and functions that Axi programs use to interact with the ledger.
+In this section, we will see what Cubix's ledger looks like from Axi's perspective. To do this, we will discuss the primitive (i.e. built-in) types and functions that Axi programs use to interact with the ledger.
 
 \lstinputlisting{listings/Primitives/Ledger.axi}
 
@@ -90,7 +90,7 @@ On lines 14--15 we define the \code{Donut} type. Because of the annotation \code
 
 On lines 20--24 we define the \code{DonutShop} type. A shop stores its own on-chain address (so that it can check if the person trying to collect its profits is its owner), its balance (the coins it earned so far from selling donuts), the price of a single donut and the serial number of the next donut it will sell. \code{DonutShop} is a linear type, so every shop must be used exactly once. This means that functions which interact with the donut shop will take the shop as input and return an updated shop as output.
 
-On lines 27--28 we define the \code{DonutShopOwnershipToken} type. Such a token contains a reference to the on-chain cell in which the shop lives and acts as a ``key'' that allows the shop owner (and only him) to withdraw the profits made by the shop. We expect such ownership tokens to become a common programming pattern in Khalani. We will explain how these tokens work later.
+On lines 27--28 we define the \code{DonutShopOwnershipToken} type. Such a token contains a reference to the on-chain cell in which the shop lives and acts as a ``key'' that allows the shop owner (and only him) to withdraw the profits made by the shop. We expect such ownership tokens to become a common programming pattern in Cubix. We will explain how these tokens work later.
 
 On lines 31--43 we define the function \code{init}. It takes a donut price, together with the ledger, sets up a new donut shop on the ledger, and returns its ownership token, together with the new ledger. It works as follows. First, on line 34, we create a new mutable shared cell that will hold the shop. In return we get a reference and a setter. Then on lines 35--36 we define a new ownership token using the reference. Then on lines 37--41 we define a new shop using the reference's address. Finally, on line 43, we return the ownership token, together with the new ledger obtained by calling the setter \code{publishShopToLedger} on the new shop.
 
@@ -114,7 +114,7 @@ Another interesting property of this design is that, although ownership tokens c
 
 \end{example}
 
-The above example shows a transaction that sets up a new donut shop. On lines 1--2, we import the \code{init} function from the \code{DonutShop} module. On lines 4--14 we define the \code{main} function, which describes how the transaction will modify the ledger once it is executed. On line 8 we ask for a reference to our own account (so that we can create new cells later). On line 10 we call \code{init} to set up a new donut shop in which each donut costs 1000 \code{KhalaniCoin}s. On line 11 we create a new cell owned by us that will hold the shop's ownership token. On line 12 we call the setter to put our token into this cell. Finally, on line 14, we return the ledger.
+The above example shows a transaction that sets up a new donut shop. On lines 1--2, we import the \code{init} function from the \code{DonutShop} module. On lines 4--14 we define the \code{main} function, which describes how the transaction will modify the ledger once it is executed. On line 8 we ask for a reference to our own account (so that we can create new cells later). On line 10 we call \code{init} to set up a new donut shop in which each donut costs 1000 \code{CubixCoin}s. On line 11 we create a new cell owned by us that will hold the shop's ownership token. On line 12 we call the setter to put our token into this cell. Finally, on line 14, we return the ledger.
 
 \begin{example}{A transaction that buys a donut}
 

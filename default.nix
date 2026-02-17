@@ -3,7 +3,7 @@
 with pkgs;
 
 stdenv.mkDerivation {
-  name = "Khalani litepaper";
+  name = "Cubix litepaper";
   buildInputs = [ (texlive.combine {
                     inherit (texlive)
                       scheme-small
@@ -25,7 +25,7 @@ stdenv.mkDerivation {
   src = ./.;
 
   meta = with lib; {
-    description = "Khalani litepaper";
+    description = "Cubix litepaper";
     license = licenses.isc;
     platforms = platforms.linux;
   };

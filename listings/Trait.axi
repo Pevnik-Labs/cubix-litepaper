@@ -4,22 +4,22 @@ trait Coin (A : Type1) where
   coinMerge  : A -> A -> A
   coinSplit  : Nat -> A -> Option A * A
 
-record KhalaniCoin : Type1 where
+record CubixCoin : Type1 where
   amount : Nat
 
-instance Coin KhalaniCoin where
-  coinZero : KhalaniCoin =
+instance Coin CubixCoin where
+  coinZero : CubixCoin =
     record where amount = 0
 
-  coinMerge (c1 c2 : KhalaniCoin) : KhalaniCoin =
+  coinMerge (c1 c2 : CubixCoin) : CubixCoin =
     record where amount = c1.amount + c2.amount
 
-  coinAmount (c : KhalaniCoin) : Nat * KhalaniCoin =
+  coinAmount (c : CubixCoin) : Nat * CubixCoin =
     let n : Nat = c.amount in
       (n, record where amount = n)
 
-  coinSplit (askedAmount : Nat) (c : KhalaniCoin) :
-    Option KhalaniCoin * KhalaniCoin =
+  coinSplit (askedAmount : Nat) (c : CubixCoin) :
+    Option CubixCoin * CubixCoin =
       let n : Nat = c.amount in
         if askedAmount <= n then
           ( some (record where amount = askedAmount)

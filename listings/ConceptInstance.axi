@@ -1,6 +1,6 @@
-instance LawfulCoin KhalaniCoin where
+instance LawfulCoin CubixCoin where
   theorem coinAmount-spec :
-    forall @(x : KhalaniCoin),
+    forall @(x : CubixCoin),
       let (_, y) = coinAmount x in x === y
   proof
     pick-any x
@@ -13,7 +13,7 @@ instance LawfulCoin KhalaniCoin where
   qed
 
   theorem coinMerge-spec :
-    forall @(x y : KhalaniCoin),
+    forall @(x y : CubixCoin),
       coinAmount' (coinMerge x y)
         ===
       coinAmount' x + coinAmount' y
