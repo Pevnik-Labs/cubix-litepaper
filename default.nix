@@ -13,8 +13,6 @@ pkgs.stdenv.mkDerivation
 
   src = pkgs.lib.cleanSource ./.;
 
-  enableParallelBuilding = true;
-
   buildInputs = with pkgs;
   [
     (texlive.combine
@@ -42,7 +40,6 @@ pkgs.stdenv.mkDerivation
         appendix
         ;
     })
-    glibcLocales
   ];
 
   buildPhase =
