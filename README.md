@@ -30,7 +30,7 @@ Then build the PDF in place:
 
 This produces `cubix-litepaper.pdf` in the project root.
 
-**Run this before committing!**
+**Run `./build.sh` before committing!**
 
 ### Nix build
 
@@ -50,4 +50,4 @@ The PDF will be placed at `./result/share/pdf/cubix-litepaper.pdf`.
 
 ### Adding TeX packages
 
-When adding a new TeX package in `cubix-litepaper.tex`, you must also add it to `default.nix` or else the build will break. In case of trouble you can ask AI for help, they are good enough to handle Nix.
+When adding a new TeX package in `cubix-litepaper.tex`, you must also add it to `default.nix` or else the build will break.
